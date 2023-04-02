@@ -1,12 +1,8 @@
 from flask import Flask, render_template, request
 import mod.scraper
 from mod.into_mysql import into_mysql
-<<<<<<< HEAD
-=======
-import xlwt
-import xlrd
-from xlutils.copy import copy
->>>>>>> main
+import mod.execl
+
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -39,38 +35,6 @@ def start():
 
         return render_template('index.html', date=date, sql_date=sql_date)
 
-<<<<<<< HEAD
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
-=======
-def write_excel(data):
-    wbk = xlwt.Workbook()
-    sheet = wbk.add_sheet('sheet 1')
-    for i in range(len(data)):
-        for j in range(len(data[i])):
-            sheet.write(i, j, data[i][j])
-    wbk.save('data.xls')
-
-def read_excel():
-    data = []
-    wb = xlrd.open_workbook('data.xls')
-    sheet = wb.sheet_by_index(0)
-    for i in range(sheet.nrows):
-        data.append(sheet.row_values(i))
-    return data
-
-def add_excel(data):
-    rb = xlrd.open_workbook('data.xls')
-    wb = copy(rb)
-    ws = wb.get_sheet(0)
-    for i in range(len(data)):
-        for j in range(len(data[i])):
-            ws.write(i, j, data[i][j])
-    wb.save('data.xls')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
-
-
-
->>>>>>> main

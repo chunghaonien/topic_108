@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>取得網頁程式碼範例</title>
+    </head>
+    <body>
+        <h1>取得網頁程式碼範例</h1>
+        <form method="POST" action="/">
+            <label for="url-input">請輸入網址：</label>
+            <input type="text" id="url-input" name="url-input" value="https://www.google.com/">
+            <br>
+            <input type="submit" name="start" value="開始">
+            <input type="submit" name="go" value="處存資料">
+        </form>
+        <br>
+        <label for="date">程式碼：</label>
+        <br>
+        <textarea id="date" name="date" rows="20" cols="80">{{ date }}</textarea>
+    </body>
+</html>

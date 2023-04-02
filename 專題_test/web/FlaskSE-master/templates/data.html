@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../static/jquery-3.6.0.min.js"></script>
+    <title>WebAPI</title>
+</head>
+
+<body>
+    <h1>DATA : API</h1>
+
+    <h2>API : GET</h2>
+    <button id='btnGet'>GET</button>
+
+    <hr>
+
+    <h2>API : POST</h2>
+    <p>APP_ID :
+        <input id="app_id" name="app_id" type="number" />
+    </p>
+    <p>APP_NAME :
+        <input id="app_name" name="app_name" type="text" />
+    </p>
+    <p>APP_VERSION :
+        <input id="app_version" name="app_version" type="text" />
+    </p>
+    <p>APP_AUTHOR :
+        <input id="app_author" name="app_author" type="text" />
+    <p>APP_REMARK :
+        <input id="app_remark" name="app_remark" type="text" />
+    </p>
+    <button id="btnPost">POST</button>
+    <hr>
+
+    <h3>Console : </h3>
+    <div id="console"></div>
+    
+    <script>
+        $(function () {
+            var $btnGet = $('#btnGet');
+            var $console = $('#console');
+            var $btnPost = $('#btnPost');
+
+            var $edtAppId = $('#app_id');
+            var $edtAppName = $('#app_name');
+            var $edtAppVersion = $('#app_version');
+            var $edtAppAuthor = $('#app_author');
+            var $edtAppRemark = $('#app_remark');
+
+            $btnGet.off('click').on('click', function () {
+                $.ajax({
+                    url: '/data/message',
+                    data: {},
+                    type: 'GET',
+                    success: function (data) {
+                        $console.text("");
+                        $console.append("data[id] : " + data.appInfo.id + "<br>");
+                        $console.append("data[name] : " + data.appInfo.name + "<br>");
+                        $console.append("data[version] : " + data.appInfo.version + "<br>");
+                        $console.append("data[author] : " + data.appInfo.author + "<br>");
+                        $console.append("data[remark] : " + data.appInfo.remark + "<br>");
+
+                        $edtAppId.val(data.appInfo.id);
+                        $edtAppName.val(data.appInfo.name);
+                        $edtAppVersion.val(data.appInfo.version);
+                        $edtAppAuthor.val(data.appInfo.author);
+                        $edtAppRemark.val(data.appInfo.remark);
+
+                    },
+                    error: function (xhr) {
+                        alert('Ajax request 發生錯誤');
+                    }
+                });
+            })
+
+            $btnPost.off('click').on('click',function(){
+                $.ajax({
+                    url: '/data/message',
+                    data: {
+                        "app_id" : $edtAppId.val() , 
+                        "app_name" : $edtAppName.val(),
+                        "app_version" : $edtAppVersion.val(),
+                        "app_author" : $edtAppAuthor.val(),
+                        "app_remark" : $edtAppRemark.val(),
+
+                    },
+                    type: 'POST',
+                    success: function (data) {
+                        $console.text("result = ");
+                        $console.append(data.result);
+                    },
+                    error: function (xhr) {
+                        alert('Ajax request 發生錯誤');
+                    }
+                });
+
+            });
+
+
+        });
+    </script>
+</body>
+
+</html>

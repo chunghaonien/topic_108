@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang = "en">
+   <head></head>
+   <body>
+      {%- for message in get_flashed_messages() %}
+         {{ message }}
+      {%- endfor %}
+		
+      <h3><a href = "{{url_for('create')}}">Add : AppInfo</a></h3>
+      
+      <table border="1">
+         <thead>
+            <tr>
+               <th width="150">Name</th>
+               <th width="100">Version</th>
+               <th width="100">Author</th>
+               <th width="100">Date</th>
+               <th width="250">Remark</th>
+               <th width="150">Action</th>
+            </tr>
+         </thead>
+
+         <tbody>
+            {% for info in appInfo %}
+               <tr>
+                  <td>{{ info.name }}</td>
+                  <td>{{ info.version }}</td>
+                  <td>{{ info.author }}</td>
+                  <td>{{ info.date }}</td>
+                  <td>{{ info.remark }}</td>
+                  <td align="center"> <a href="/delete/{{ info.id }}">Delete</a> </td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+   </body>
+</html>

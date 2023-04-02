@@ -1,8 +1,16 @@
 # topic_108
-#先去裝模組
-#pip install flask
-#pip install bs4
-#pip install mysql-connector-python
-#pip install xlwt
-#pip install xlrd
-#pip install xlutils
+<h2>先去裝模組</h2>
+<br>
+模組安裝指令
+<br>
+pip install flask
+<br>
+pip install bs4
+<br>
+pip install mysql-connector-python
+<br>
+pip install xlwt
+<br>
+pip install xlrd
+<br>
+pip install xlutils

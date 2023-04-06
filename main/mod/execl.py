@@ -26,3 +26,5 @@ def add_excel(data):
         for j in range(len(data[i])):
             ws.write(i, j, data[i][j])
     wb.save('data.xls')
+
+    

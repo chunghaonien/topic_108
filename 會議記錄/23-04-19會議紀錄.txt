@@ -1,0 +1,11 @@
+23/4/19 會議紀錄
+1.工作分配：
+32:頁面樣版、Logo
+10:cnn
+30:yahoo
+31:dcard
+40:ptt reddit
+2.爬蟲網頁：dcard、yahoo、bahamut、ptt、mobile01 、reddit、cnn中文網
+3.一個禮拜先暫定一人做十個網頁的樣板
+4.這禮拜四、禮拜五做書審資料
+5.資料庫新增一個儲存網站url的table（網站名、url）

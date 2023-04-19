@@ -13,19 +13,11 @@ def analyze_web(url):
     content = response.read().decode('utf-8')
 
     return content
-    
-def get_url(content):
-    tree = etree.HTML(content)
-    url_list = tree.xpath("//td[@class='b-list__main']/a/@href")
 
-    return url_list
-
-def get_article(url_list):
-    for url in url_list:
-        done_url = 'https://forum.gamer.com.tw/' + str(url)
-        soup = BeautifulSoup(analyze_web(done_url), 'html.parser')
-        title_element = soup.find('h1', class_='c-post__header__title')
-        author_element = soup.find('div', class_='c-article__content')
+def get_article(url):
+        soup = BeautifulSoup(analyze_web(url), 'html.parser')
+        title_element = soup.find('h3', class_='_eYtD2XCVieq6emjKBH3m')
+        author_element = soup.find('div', class_='_292iotee39Lmt0MkQZ2hPV RichTextJSON-root')
         
         if title_element:
             title = title_element.text
@@ -38,11 +30,6 @@ def get_article(url_list):
         else:
             print("未找到內容元素")
 
-
-
 if __name__ == '__main__':
-    start_page = int(input('輸入起始頁碼'))
-    end_page = int(input('輸入結束頁碼'))
-    for page in range(start_page, end_page+1):
-        base_url = 'https://forum.gamer.com.tw/B.php?page='+ str(page) +'&bsn=36730'
-        get_article(get_url(analyze_web(base_url)))
+    url = input("請輸入reddit網址:")
+    get_article(url)

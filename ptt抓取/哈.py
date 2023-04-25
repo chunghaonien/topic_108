@@ -2,15 +2,17 @@ import urllib.request
 from lxml import etree
 from bs4 import BeautifulSoup
 
-def analyze_web(url):
-    
-    headers = {
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 OPR/95.0.0.0'
-    }
+def analyze_web(start_page, end_page):
+    for page in range(start_page, end_page+1):
+        base_url = 'https://forum.gamer.com.tw/B.php?page='+ str(page) +'&bsn=36730'
 
-    request = urllib.request.Request(url = url, headers= headers)
-    response = urllib.request.urlopen(request)
-    content = response.read().decode('utf-8')
+        headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 OPR/95.0.0.0'
+        }
+
+        request = urllib.request.Request(url = base_url, headers= headers)
+        response = urllib.request.urlopen(request)
+        content = response.read().decode('utf-8')
 
     return content
     
@@ -43,6 +45,5 @@ def get_article(url_list):
 if __name__ == '__main__':
     start_page = int(input('輸入起始頁碼'))
     end_page = int(input('輸入結束頁碼'))
-    for page in range(start_page, end_page+1):
-        base_url = 'https://forum.gamer.com.tw/B.php?page='+ str(page) +'&bsn=36730'
-        get_article(get_url(analyze_web(base_url)))
+    
+    get_article(get_url(analyze_web(start_page, end_page)))

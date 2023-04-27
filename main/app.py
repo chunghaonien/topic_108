@@ -17,11 +17,20 @@ def index():
 @app.route('/start', methods=['POST'])
 def start():
     url = request.form['url-list']
-    option = request.form.get('option', '')
     save_data = request.form.get('save-data')
+    start_page = request.form.get('start-page')
+    end_page = request.form.get('end-page')
+    date = ""
     sql_date = ""
-    if url == "https://www.gamer.com.tw/":
-        date = web.bahamut.bahamut_1.start(1, 1)
+    if start_page == "" or end_page == "":
+        date = '請輸入頁數'
+    else:
+        start_page = int(start_page)
+        end_page = int(end_page)
+        if url == "bahamut":
+            for i in range(start_page, end_page+1):
+                base_url = 'https://forum.gamer.com.tw/B.php?page='+ str(i) +'&bsn=36730'         
+                date = web.bahamut.bahamut_1.start_bahamut(base_url)
     
     if save_data:
         sql_date = into_mysql(url, date)

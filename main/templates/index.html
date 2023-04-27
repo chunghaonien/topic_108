@@ -8,15 +8,18 @@
         <h1>取得網頁程式碼範例</h1>
         <form method="POST" action="/start">
             <select name = 'url-list'>
-                <option value="https://www.gamer.com.tw/">巴哈</option>
-                <option value="https://www.gamer.com.tw/">dcard</option>
-                <option value="https://www.gamer.com.tw/">yahoo論壇</option>
-                <option value="https://www.gamer.com.tw/">ptt</option>
-                <option value="https://www.gamer.com.tw/">mobile01</option>
-                <option value="https://www.gamer.com.tw/">reddit</option>
-                <option value="https://www.gamer.com.tw/">cnn中文網</option>
+                <option value="bahamut">巴哈</option>
+                <option value="dcard">dcard</option>
+                <option value="yahoo">yahoo論壇</option>
+                <option value="ptt">ptt</option>
+                <option value="mobile01">mobile01</option>
+                <option value="reddit">reddit</option>
+                <option value="cnnchinese">cnn中文網</option>
 
             </select>
+            <br>
+            起始頁數:<input type="text" id="start-page" name="start-page" size="2">
+            結束頁數:<input type="text" id="end-page" name="end-page" size="2">
             <br>
             <input type="checkbox" id="save-data" name="save-data">
             <label for="save-data">儲存資料到 MySQL</label>

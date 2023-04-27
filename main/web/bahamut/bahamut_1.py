@@ -2,27 +2,22 @@ import urllib.request
 from lxml import etree
 from bs4 import BeautifulSoup
 
-def analyze_web(start_page, end_page):
-    for page in range(start_page, end_page+1):
-        base_url = 'https://forum.gamer.com.tw/B.php?page='+ str(page) +'&bsn=36730'
-    
+def analyze_web(url):
         headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 OPR/95.0.0.0'
         }
 
-        request = urllib.request.Request(url = base_url, headers= headers)
+        request = urllib.request.Request(url = url, headers= headers)
         response = urllib.request.urlopen(request)
         content = response.read().decode('utf-8')
 
         return content
     
-def get_url(content):
-    tree = etree.HTML(content)
+
+def start_bahamut(base_url):
+    tree = etree.HTML(analyze_web(base_url))
     url_list = tree.xpath("//td[@class='b-list__main']/a/@href")
 
-    return url_list
-
-def get_article(url_list):
     done_list = []
     for url in url_list:
         done_url = 'https://forum.gamer.com.tw/' + str(url)
@@ -42,7 +37,4 @@ def get_article(url_list):
         else:
             done_list.append("未找到內容元素")
 
-        return done_list
-
-def start(start_page, end_page):
-    return get_article(get_url(analyze_web(start_page, end_page)))
+    return done_list

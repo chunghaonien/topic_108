@@ -20,23 +20,43 @@ def start():
     save_data = request.form.get('save-data')
     start_page = request.form.get('start-page')
     end_page = request.form.get('end-page')
-    date = ""
-    sql_date = ""
+    data = ""
+    sql_data = ""
     if start_page == "" or end_page == "":
-        date = '請輸入頁數'
+        data = '請輸入頁數'
     else:
         start_page = int(start_page)
         end_page = int(end_page)
         if url == "bahamut":
             for i in range(start_page, end_page+1):
                 base_url = 'https://forum.gamer.com.tw/B.php?page='+ str(i) +'&bsn=36730'         
-                date = web.bahamut.bahamut_1.start_bahamut(base_url)
+                data = web.bahamut.bahamut_1.start_bahamut(base_url)
     
     if save_data:
-        sql_date = into_mysql(url, date)
+        sql_data = into_mysql(url, data)
 
-    return render_template('index.html', date=date, sql_date=sql_date)
+    return render_template('index.html', data=data, sql_data=sql_data)
 
+#在html上按下按鈕，取得執行完成的內容生成表格
+@app.route('/table', methods=['POST'])
+def table():
+    data = request.form['data']
+    #把data切成二維陣列
+    done_data = []
+    count_a = 0
+    count_b = 1
+    for i in data:
+        
+    #生成表格
+    table_html = '<table><tr><td>標題</td><td>內容</td></tr>'
+    for row in data:
+        table_html += '<tr>'
+        table_html += '<td>' + row[0] + '</td>'
+        table_html += '<td>' + row[1] + '</td>'
+        table_html += '</tr>'
+    table_html += '</table>'
+    # 回傳表格
+    return table_html
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)

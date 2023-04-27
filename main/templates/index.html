@@ -26,11 +26,16 @@
             <br>
             <button>開始</button>
         </form>
+        <form action="/table" method="POST">
+            <input type="hidden" name="data" value="{{ data }}">
+            <button type="submit">生成表格</button>
+        </form>
         <br>
-        <label for="date">程式碼：</label>
+        <label for="data">程式碼：</label>
         <br>
-        <textarea id="date" name="date" rows="20" cols="80">{{ date }}</textarea>
+        <textarea id="data" name="data" rows="20" cols="80">{{ data }}</textarea>
         <br>
-        <textarea id="sql_date" name="sql_date" rows="2" cols="80">{{ sql_date }}</textarea>
+        <textarea id="sql_data" name="sql_data" rows="2" cols="80">{{ sql_data }}</textarea>
+        
     </body>
 </html>

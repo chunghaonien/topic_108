@@ -12,11 +12,27 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.php')
 
-@app.route('/start', methods=['POST'])
-def start():
-    url = request.form['url-list']
+@app.route('/web/<page>')
+def web(page):
+    if page == 'bahamut':
+        return render_template('bahamut.php')
+    elif page == 'ptt':
+        return render_template('ptt.php')
+    elif page == 'dcard':
+        return render_template('dcard.php')
+    elif page == 'yahoo':
+        return render_template('yahoo.php')
+    elif page == 'mobile01':
+        return render_template('mobile01.php')
+    elif page == 'bbc':
+        return render_template('bbc.php')
+    else:
+        return 'Page not found'
+
+@app.route('/bahamut', methods=['POST'])
+def bahamut():
     save_data = request.form.get('save-data')
     start_page = request.form.get('start-page')
     end_page = request.form.get('end-page')
@@ -27,34 +43,31 @@ def start():
     else:
         start_page = int(start_page)
         end_page = int(end_page)
-        if url == "bahamut":
-            for i in range(start_page, end_page+1):
-                base_url = 'https://forum.gamer.com.tw/B.php?page='+ str(i) +'&bsn=36730'         
-                data = web.bahamut.bahamut_1.start_bahamut(base_url)
-    
-    if save_data:
-        sql_data = into_mysql(url, data)
 
-    return render_template('index.html', data=data, sql_data=sql_data)
+        if save_data:
+            sql_data = into_mysql(url, data)
+            if sql_data:
+                return render_template('success.html')
+            else:
+                return render_template('error.html')
 
-#在html上按下按鈕，取得執行完成的內容生成表格
+    return render_template('index.php', data=data, sql_data=sql_data)
+
+
 @app.route('/table', methods=['POST'])
 def table():
     data = request.form['data']
-    #把data切成二維陣列
     done_data = []
     count_a = 0
     count_b = 1
     for i in data:
-        
-    #生成表格
-    table_html = '<table><tr><td>標題</td><td>內容</td></tr>'
-    for row in data:
-        table_html += '<tr>'
-        table_html += '<td>' + row[0] + '</td>'
-        table_html += '<td>' + row[1] + '</td>'
-        table_html += '</tr>'
-    table_html += '</table>'
+        table_html = ''
+        for row in data:
+            table_html += '<tr>'
+            table_html += '<td>' + row[0] + '</td>'
+            table_html += '<td>' + row[1] + '</td>'
+            table_html += '</tr>'
+        table_html += '</table>'
     # 回傳表格
     return table_html
 

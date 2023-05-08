@@ -3,6 +3,7 @@ import mod.scraper
 from mod.into_mysql import into_mysql
 import mod.execl
 import web.bahamut.bahamut_1
+from web.BBC.BBC_list  import get_options, start_bbc
 
 
 app = Flask(__name__)
@@ -53,6 +54,32 @@ def bahamut():
 
     return render_template('index.php', data=data, sql_data=sql_data)
 
+@app.route('/bbc', methods=['POST'])
+def bbc():
+    options_list = request.form.getlist('bbc')
+    save_data = request.form.get('save-data')
+    start_page = request.form.get('start-page')
+    end_page = request.form.get('end-page')
+    data = ""
+    sql_data = ""
+    if start_page == "" or end_page == "":
+        data = '請輸入頁數'
+    else:
+        start_page = int(start_page)
+        end_page = int(end_page)
+        if options_list == []:
+            data = '請選擇分類'
+        else:
+            url_list = get_options(options_list)
+            for url in url_list:
+                for i in range(start_page, end_page + 1):
+                    url = url + 'page=' + str(i)
+                    for d in start_bbc(url):
+                        data += d
+                        data += '<br>'
+            
+
+    return render_template('index.php', data=data)
 
 @app.route('/table', methods=['POST'])
 def table():

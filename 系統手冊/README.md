@@ -14,3 +14,5 @@ pip install xlwt
 pip install xlrd
 <br>
 pip install xlutils
+<br>
+pip install lxml

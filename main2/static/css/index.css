@@ -1,0 +1,198 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-size: 14px;
+}
+
+.v28_188 {
+  width: 100%;
+  height: 1024px;
+  background: rgba(255, 255, 255, 1);
+  opacity: 1;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+}
+
+.v30_178 {
+  width: 200px;
+  height: 100%;
+  background: rgba(47, 47, 47, 1);
+  opacity: 1;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+}
+
+.v30_179,
+.v30_180,
+.v30_181,
+.v30_185 {
+  width: 40px;
+  height: 40px;
+  background: rgba(217, 217, 217, 1);
+  opacity: 1;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.v30_179 {
+  top: 91px;
+  left: 20px;
+}
+
+.v30_180 {
+  top: 151px;
+  left: 20px;
+}
+
+.v30_181 {
+  top: 211px;
+  left: 20px;
+}
+
+.v30_185 {
+  top: 960px;
+  left: 20px;
+}
+
+.v30_182,
+.v30_183,
+.v30_184,
+.v30_186 {
+  width: 100px;
+  color: rgba(255, 255, 255, 1);
+  position: absolute;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 20px;
+  opacity: 1;
+  text-align: center;
+}
+
+.v30_182 {
+  top: 91px;
+  left: 80px;
+}
+
+.v30_183 {
+  top: 151px;
+  left: 80px;
+}
+
+.v30_184 {
+  top: 211px;
+  left: 80px;
+}
+
+.v30_186 {
+  top: 960px;
+  left: 80px;
+}
+
+.name {
+  color: #fff;
+}
+
+.v30_189 {
+  width: 113px;
+  color: rgba(255, 255, 255, 1);
+  position: absolute;
+  top: 30px;
+  left: 69px;
+  font-family: Inter;
+  font-weight: Bold;
+  font-size: 30px;
+  opacity: 1;
+  text-align: left;
+}
+
+.v30_190 {
+  width: 53px;
+  height: 56px;
+  background: url("../img/v30_190.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 4px;
+  left: 7px;
+  border-radius: 55px;
+  overflow: hidden;
+}
+
+.v30_191 {
+  width: 19px;
+  height: 27px;
+  background: url("../images/v30_191.png");
+  opacity: 1;
+  position: absolute;
+  top: 384px;
+  left: 40px;
+  border: 2px solid rgba(0, 0, 0, 1);
+}
+
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.popup-container {
+  position: absolute;
+  left: 35%;
+  top: 160%;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 200px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  display: none;
+  padding: 20px;
+}
+
+.popup-container.show {
+  display: block;
+}
+
+.v30_182:hover,
+.v30_183:hover,
+.v30_184:hover {
+  background-color: yellow; /* 滑鼠懸停時的背景顏色 */
+  transition: background-color 0.3s; /* 增加動畫效果，過渡時間為0.3秒 */
+}
+
+.sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background-color: #f1f1f1;
+}
+
+.sidebar-item-text {
+  display: none;
+  margin-left: 10px;
+}
+
+.sidebar-item:hover .sidebar-item-text {
+  display: block;
+}

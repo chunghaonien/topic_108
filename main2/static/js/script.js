@@ -26,20 +26,3 @@ modeSwitch.addEventListener('click', () => {
     }
 });
 
-function passDataFromFlask(user) {
-    console.log(user.id);
-    console.log(user.password);
-    console.log(user.name);
-    console.log(user.email);
-    console.log(user.birthday);
-}
-
-var request = new XMLHttpRequest();
-request.open('GET', '/get_user_data', true);
-request.onreadystatechange = function() {
-    if (request.readyState === 4 && request.status === 200) {
-        var user = JSON.parse(request.responseText);
-        passDataFromFlask(user);
-    }
-};
-request.send();

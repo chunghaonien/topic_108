@@ -59,12 +59,23 @@
             </div>
 
             <div class="bottom-conent">
-                <li class="nav-link">
-                    <a href="#" onclick="toggleActive()">
-                        <i class='bx bx-log-in icon'></i>
-                        <span class="text nav-text">登入</span>
+                <li class="nav-link log-OK">
+
+                    {% if user_logged_in %}
+                    <a href="#" onclick="toggleActive1()">
+                        <i class='bx bx-user icon'></i>
+                        <span id="login-text" class="text nav-text">{{ username }}</span>
                     </a>
+                    {% else %}
+                    <a href="#" onclick="toggleActive2()">
+                        <i class='bx bx-log-in icon'></i>
+                        <span id="login-text" class="text nav-text">登入</span>
+                    </a>
+                    {% endif %}
+
                 </li>
+
+
 
                 <li class="mode">
                     <div class="moon-sun">
@@ -83,11 +94,38 @@
 
     <section class="home">
         {% if user_logged_in %}
-        <p>使用者已登入，歡迎 {{ username }}</p>
-    {% else %}
-        <p>使用者未登入</p>
-    {% endif %}
+        <div class="profile-menu" id="profile-menu">
+            <div class="sub-menu">
+                <form method="POST" action="/page_switch">
+                    <div class="user-info">
+                        <i class='bx bx-user sub'></i>
+                        <span class="meun-name">{{ username }}</span>
+                    </div>
+                    <hr>
 
+                    <button href="#" class="sub-menu-like">
+                        <i class='bx bx-cog sub'></i>
+                        <span class="sub-text" name="page" value="settings">設定</span>
+                        <span class="sub-1">></span>
+                    </button>
+                    <button href="#" class="sub-menu-like">
+                        <i class='bx bx-cog sub'></i>
+                        <span class="sub-text">功能2</span>
+                        <span class="sub-1">></span>
+                    </button>
+                </form>
+                <form method="POST" action="/logout">
+                    <hr>
+                    <button type="submit" class="sub-menu-like">
+                        <i class='bx bx-log-out sub'></i>
+                        <span class="sub-text">登出</span>
+                        <span class="sub-1">></span>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+        {% else %}
         <div class="login-box" id="login-box">
             <div class="button-box">
                 <div id=btn></div>
@@ -106,15 +144,22 @@
                 <button type="submit" class="submit-btn">註冊</button>
             </form>
         </div>
-
+        {% endif %}
     </section>
 
     <script src="../static/js/script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function toggleActive() {
+        function toggleActive2() {
             var loginBox = document.getElementById('login-box');
-            loginBox.classList.toggle('is-active');
+            loginBox.classList.toggle('is-active-login');
         }
+
+        function toggleActive1() {
+            var profile_menu = document.getElementById('profile-menu');
+            profile_menu.classList.toggle('is-active-profile-menu');
+        }
+
         var x = document.getElementById("login");
         var y = document.getElementById("register");
         var z = document.getElementById("btn");
@@ -130,29 +175,8 @@
             y.style.left = "450px";
             z.style.left = "0px";
         }
-    
-        function passDataFromFlask(user) {
-            console.log(user[0].id);
-            console.log(user[0].password);
-            console.log(user[0].name);
-            console.log(user[0].email);
-            console.log(user[0].birthday);
-        }
-
-        var request = new XMLHttpRequest();
-        request.open('GET', '/get_user_data', true);
-        request.onreadystatechange = function() {
-            if (request.readyState === 4 && request.status === 200) {
-                var user = JSON.parse(request.responseText);
-                passDataFromFlask(user);
-            }
-        };
-        request.send();
-
-    
 
     </script>
-
 </body>
 
 </html>

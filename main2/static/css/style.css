@@ -89,7 +89,7 @@ body.dark {
     align-items: center;
     justify-content: center;
     min-width: 60px;
-    font-size: 20px;
+    font-size: 30px;
 }
 
 .sidebar li .icon,
@@ -311,7 +311,7 @@ body.dark .switch::before {
     overflow: hidden;
 }
 
-.is-active.login-box{
+.is-active-login.login-box{
     transform: scale(1);
     transition: var(--tran-05);
 }
@@ -374,11 +374,6 @@ body.dark .switch::before {
     outline: none;
     border-radius: 30px;
     margin-top: 50px;
-}
-
-
-.chech-box{
-    margin: 30px 10px 30px 0;
 }
 
 .log-sp{
@@ -444,4 +439,99 @@ h2{
     border: 0;
     border-bottom: 1px solid#3fb6a8;
     background: #E4E9f7;
+}
+
+.profile-menu{
+    width: 270px;
+    height: 310px;
+    border-radius: 10px;
+    background: #fff;
+    margin: 20px;
+    position:absolute;
+    bottom:0px;
+    padding: 5px;
+    transform: scale(0);
+    transition: var(--tran-04);
+    overflow: hidden;
+}
+
+.is-active-profile-menu.profile-menu{
+    transform: scale(1);
+    transition: var(--tran-05);
+}
+
+.sub-menu{
+    background: #fff;
+    padding: 20px;
+    margin: 10px;
+}
+
+.user-info{
+    display: flex;
+    align-items: center;
+}
+
+.user-info span{
+    font-weight: 400;
+    font-size: 30px;
+}
+
+.user-info .sub{
+    width: 60px;
+    border-radius: 30%;
+    margin-right: 15px;
+    font-size: 40px;
+}
+
+.sub-menu hr{
+    bonder:0;
+    height: 1px;
+    width: 100%;
+    background: #ccc;
+    margin: 15px 0 10px; 
+}
+
+.sub-menu-like{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #525252;
+    margin: 12px 0;
+}
+
+.sub-menu-like p{
+    width: 100%;
+}
+
+.sub.text{
+    font-size: 50px;
+    font-weight: 500;
+    color: #525252;  
+}
+
+.sub-menu-like .sub-1{
+    margin-left: auto;
+}
+
+.sub-menu-like .sub{
+    font-size: 30px;
+    font-weight: 500;
+    color: #525252;  
+}
+
+.sub-menu-like span{
+    font-size: 30px;
+}
+
+.sub-menu-like:hover span{
+    transform: translate(10px);
+}
+
+.sub-menu-like:hover p{
+    font-weight: 600;
+}
+
+.sub-menu-like{
+    border: 0;
+    background: #fff;
 }

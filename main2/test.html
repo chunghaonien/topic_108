@@ -1,0 +1,127 @@
+<style>
+    .btn-open {
+      width: 200px;
+      color: white;
+      line-height: 50px;
+      text-align: center;
+      background-color: brown;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .container {
+      width: 320px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .title {
+      position: relative;
+      padding: 5px 0;
+      font-size: 30px;
+      text-align: center;
+      color: white;
+      background-color: DarkOrange;
+    }
+    .btn-close {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 12px;
+      cursor: pointer
+    }
+    .content {
+      padding: 30px;
+      background-color: Bisque;
+    }
+  </style>
+  
+  <div class="btn-open" onclick="addActive()">Open Popup</div>
+  
+  <div id="container" class="container">
+    <div class="title">
+      Title
+      <div class="btn-close" onclick="removeActive()">Close</div>
+    </div>
+    <div class="content">Content</div>
+  </div>
+
+  <script>
+    function removeActive() {
+      document.getElementById('container').classList.remove('is-active')
+    }
+    function addActive() {
+      document.getElementById('container').classList.add('is-active')
+    }
+  </script>
+  
+  <style>
+    .is-active.container {
+      animation: popup 0.5s;
+    }
+    @keyframes popup {
+      0% {transform: scale(0);}
+      20% {transform: scale(1.1);}
+      50% {transform: scale(0.95);}
+      80% {transform: scale(1.05);}
+      100% {transform: scale(1);}
+    }
+  </style>
+
+<style>
+    .container {
+      transform: scale(0);
+    }
+    .is-active.container {
+      transform: scale(1);
+    }
+  </style>
+
+<style>
+    .container {
+      transition: .1s;
+    }
+  </style>
+
+
+
+
+<div login-box>
+  <div id="from-box">
+      <div class="button-box">
+          <div id = btn></div>
+          <button type="button" class="toggle-btn" onclick="login()">登入</button>
+          <button type="button" class="toggle-btn" onclick="register()">註冊</button>
+      </div>
+      
+      </from>
+  </div>
+</div>
+
+<from id="login" class="input-group">
+  <input type="text" class="input-field" placeholder="User Id" required>
+  <input type="text" class="input-field" placeholder="Enter Password" required>
+  <input type="checkbox" class="chech-box"><span>記住我</span>
+  <button type="submit" class="submit-btn">登入</button>
+</from>
+<from id="register" class="input-group">
+  <input type="text" class="input-field" placeholder="User Id" required>
+  <input type="email" class="input-field" placeholder="Email Id" required>
+  <input type="text" class="input-field" placeholder="Enter Password" required>
+  
+  <input type="checkbox" class="chech-box"><span>我同意用戶協定</span>
+  <button type="submit" class="submit-btn">註冊</button>
+
+  var x = document.getElementById("login");
+  var y = document.getElementById("register");
+  var z = document.getElementById("btn");
+
+  function register() {
+      x.style.left = "-400px";
+      y.style.left = "50px";
+      z.style.left = "110px";
+  }
+
+  function login() {
+      x.style.left = "50px";
+      y.style.left = "450px";
+      z.style.left = "0px";
+  }

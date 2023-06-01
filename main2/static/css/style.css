@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,700&display=swap');
 
-*{
+* {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
@@ -8,13 +8,13 @@
 
 }
 
-:root{
-    --body-color:#E4E9f7;
-    --sidebar-color:#FFF;
-    --primary-color:#5cd8fe;
-    --primary-color-light:#F6F5FF;
-    --toggle-color:#DDD;
-    --text-color:#707070;
+:root {
+    --body-color: #E4E9f7;
+    --sidebar-color: #FFF;
+    --primary-color: #5cd8fe;
+    --primary-color-light: #F6F5FF;
+    --toggle-color: #DDD;
+    --text-color: #707070;
 
     --tran-02: all 0.2s ease;
     --tran-03: all 0.3s ease;
@@ -22,23 +22,23 @@
     --tran-05: all 0.5s ease;
 }
 
-body{
+body {
     height: 100vh;
     background-color: var(--body-color);
     transition: var(--tran-05);
 }
 
-body.dark{
-    --body-color:#18191a;
-    --sidebar-color:#242526;
-    --primary-color:#3a3b3c;
-    --primary-color-light:#3a3b3c;
-    --toggle-color:#fff;
-    --text-color:#ccc;
+body.dark {
+    --body-color: #18191a;
+    --sidebar-color: #242526;
+    --primary-color: #3a3b3c;
+    --primary-color-light: #3a3b3c;
+    --toggle-color: #fff;
+    --text-color: #ccc;
 }
 
 /* ===== Sidebar ===== */
-.sidebar{
+.sidebar {
     position: fixed;
     top: 0;
     left: 0;
@@ -50,12 +50,12 @@ body.dark{
     z-index: 100;
 }
 
-.sidebar.close{
+.sidebar.close {
     width: 88px;
 }
 
 /* ===== Resuble CSS ===== */
-.sidebar .text{
+.sidebar .text {
     font-size: 16px;
     width: 500;
     color: var(--text-color);
@@ -64,18 +64,18 @@ body.dark{
     opacity: 1;
 }
 
-.sidebar.close .text{
+.sidebar.close .text {
     opacity: 0;
 }
 
-.sidebar .image{
+.sidebar .image {
     min-width: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.sidebar li{
+.sidebar li {
     height: 50px;
     margin-top: 10px;
     list-style: none;
@@ -83,7 +83,7 @@ body.dark{
     align-items: center;
 }
 
-.sidebar li .icon{
+.sidebar li .icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -92,39 +92,39 @@ body.dark{
 }
 
 .sidebar li .icon,
-.sidebar li .text{
+.sidebar li .text {
     color: var(--text-color);
     transition: var(--tran-02);
 }
 
-.sidebar header{
+.sidebar header {
     position: relative;
 }
 
-.sidebar .image-text img{
+.sidebar .image-text img {
     width: 40px;
     border-radius: 6px;
 }
 
-.sidebar header .image-text{
+.sidebar header .image-text {
     display: flex;
     align-items: center;
 }
 
-header .image-text .header-text{
+header .image-text .header-text {
     display: flex;
     flex-direction: column;
 }
 
-.header-text .name{
+.header-text .name {
     font-weight: 600;
 }
 
-.header-text .profession{
+.header-text .profession {
     margin-top: -2px;
 }
 
-.sidebar header .toggle{
+.sidebar header .toggle {
     position: absolute;
     top: 50%;
     right: -25px;
@@ -141,25 +141,25 @@ header .image-text .header-text{
     transition: var(--tran-03);
 }
 
-.sidebar.close header .toggle{
+.sidebar.close header .toggle {
     transform: rotateY(-50%);
 }
 
-body.dark .sidebar header .toggle{
+body.dark .sidebar header .toggle {
     color: var(--text-color);
 }
 
-.sidebar .meun{
+.sidebar .meun {
     margin-top: 35px;
 }
 
-.sidebar .search-box{
+.sidebar .search-box {
     background: var(--primary-color-light);
     border-radius: 6px;
     transition: var(--tran-05);
 }
 
-.search-box input{
+.search-box input {
     height: 100%;
     width: 100%;
     outline: none;
@@ -171,7 +171,7 @@ body.dark .sidebar header .toggle{
     transition: var(--tran-05);
 }
 
-.sidebar li a{
+.sidebar li a {
     height: 100%;
     width: 100%;
     display: flex;
@@ -181,58 +181,58 @@ body.dark .sidebar header .toggle{
     transition: var(--tran-04);
 }
 
-.sidebar li a:hover{
+.sidebar li a:hover {
     background: var(--primary-color);
 }
 
 .sidebar li a:hover .icon,
-.sidebar li a:hover .text{
+.sidebar li a:hover .text {
     color: var(--sidebar-color);
 }
 
 body.dark .sidebar li a:hover .icon,
-body.dark .sidebar li a:hover .text{
+body.dark .sidebar li a:hover .text {
     color: var(--text-color);
 }
 
-.sidebar .meun-bar{
+.sidebar .meun-bar {
     height: calc(100% - 50px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-.meun-bar .mode{
+.meun-bar .mode {
     position: relative;
     border-radius: 6px;
     background: var(--primary-color-light);
 }
 
-.meun-bar .mode .moon-sun{
+.meun-bar .mode .moon-sun {
     height: 50px;
     width: 60px;
     display: flex;
     align-items: center;
 }
 
-.meun-bar .mode i{
+.meun-bar .mode i {
     position: absolute;
     transition: var(--tran-03);
 }
 
-.meun-bar .mode i.sun{
+.meun-bar .mode i.sun {
     opacity: 0;
 }
 
-body.dark .meun-bar .mode i.sun{
+body.dark .meun-bar .mode i.sun {
     opacity: 1;
 }
 
-body.dark .meun-bar .mode i.moon{
+body.dark .meun-bar .mode i.moon {
     opacity: 0;
 }
 
-.meun-bar .mode .toggle-switch{
+.meun-bar .mode .toggle-switch {
     position: absolute;
     right: 0;
     display: flex;
@@ -246,7 +246,7 @@ body.dark .meun-bar .mode i.moon{
     transition: var(--tran-05);
 }
 
-.toggle-switch .switch{
+.toggle-switch .switch {
     height: 22px;
     width: 44px;
     background: var(--toggle-color);
@@ -255,7 +255,7 @@ body.dark .meun-bar .mode i.moon{
     cursor: pointer;
 }
 
-.switch::before{
+.switch::before {
     content: '';
     position: absolute;
     height: 15px;
@@ -268,48 +268,46 @@ body.dark .meun-bar .mode i.moon{
     transition: var(--tran-03);
 }
 
-body.dark .switch::before{
+body.dark .switch::before {
     left: 24px;
     background: var(--primary-color);
 }
 
-.home{
+.home {
     position: relative;
     left: 250px;
-    height: 100vh;
+    height: 100%;
     width: calc(100% - 250px);
     background-color: var(--body-color);
     transition: var(--tran-05);
 }
 
-.home .text{
+.home .text {
     font-size: 30px;
     font-weight: 500;
     color: var(--text-color);
     padding: 8px 40px;
 }
 
-.sidebar.close ~ .home{
+.sidebar.close~.home {
     left: 88px;
     width: calc(100% - 88px);
 }
 
-.popup-container {
-    position: relative;
+/* ============================= */
+
+.login-box{
+    width: 320px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    height: 420px;
+    margin: 20px;
+    margin-top: 60px;
+    transform: scale(0);
+    transition: var(--tran-04);
 }
 
-.popup {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 200px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    display: none;
-}
-
-.popup.active {
-    display: none;
+.is-active.login-box{
+    transform: scale(1);
 }

@@ -30,57 +30,46 @@
         <div class="meun-bar">
             <div class="meun">
                 <li class="search-box">
-                    <i class='bx bx-search-alt-2 icon' ></i>
+                    <i class='bx bx-search-alt-2 icon'></i>
                     <input type="text" placeholder="搜尋...">
                 </li>
                 <ul class="meun-links">
                     <li class="nav-link">
                         <a href="#">
-                            <i class='bx bx-home icon' ></i>
+                            <i class='bx bx-home icon'></i>
                             <span class="text nav-text">主頁</span>
                         </a>
                     </li>
 
                     <li class="nav-link">
                         <a href="#">
-                            <i class='bx bx-notepad icon' ></i>
+                            <i class='bx bx-notepad icon'></i>
                             <span class="text nav-text">委託</span>
                         </a>
                     </li>
 
                     <li class="nav-link">
                         <a href="#">
-                            <i class='bx bx-upload icon' ></i>
+                            <i class='bx bx-upload icon'></i>
                             <span class="text nav-text">上傳</span>
                         </a>
                     </li>
 
-                    <li class="nav-link">
-                        <a href="#">
-                            <i class='bx bx-home icon' ></i>
-                            <span class="text nav-text"></span>
-                        </a>
-                    </li>
                 </ul>
             </div>
 
             <div class="bottom-conent">
                 <li class="nav-link">
-                    <a href="#">
-                        <i class='bx bx-log-in icon' ></i>
-                        <span class="text nav-text login">登入</span>
+                    <a href="#" onclick="toggleActive()">
+                        <i class='bx bx-log-in icon'></i>
+                        <span class="text nav-text">登入</span>
                     </a>
-                    <div class="popup-container ">
-                        <div class="popup close">
-                            <H2>123</H2>
-                        </div>
-                    </div>
                 </li>
 
                 <li class="mode">
                     <div class="moon-sun">
-                        <i class='bx bx-moon icon moon' ></i>
-                        <i class='bx bx-sun icon sun' ></i>
+                        <i class='bx bx-moon icon moon'></i>
+                        <i class='bx bx-sun icon sun'></i>
                     </div>
                     <span class="mode-text text">深色模式</span>
 
@@ -89,14 +78,65 @@
                     </div>
                 </li>
             </div>
+
+
+
         </div>
     </nav>
 
     <section class="home">
-        <div class="text">1564</div>
+        <div class="text"></div>
+        <div class="login-box" id="login-box">
+            <div id="from-box">
+                <div class="button-box">
+                    <div id=btn></div>
+                    <button type="button" class="toggle-btn" onclick="login()">登入</button>
+                    <button type="button" class="toggle-btn" onclick="register()">註冊</button>
+                </div>
+                <from id="login" class="input-group">
+                    <input type="text" class="input-field" placeholder="User Id" required>
+                    <input type="text" class="input-field" placeholder="Enter Password" required>
+                    <input type="checkbox" class="chech-box"><span>記住我</span>
+                    <button type="submit" class="submit-btn">登入</button>
+                </from>
+                <from id="register" class="input-group">
+                    <input type="text" class="input-field" placeholder="User Id" required>
+                    <input type="email" class="input-field" placeholder="Email Id" required>
+                    <input type="text" class="input-field" placeholder="Enter Password" required>
+
+                    <input type="checkbox" class="chech-box"><span>我同意用戶協定</span>
+                    <button type="submit" class="submit-btn">註冊</button>
+
+                </from>
+            </div>
+
+        </div>
+
     </section>
 
     <script src="../static/js/script.js"></script>
+    <script>
+        function toggleActive() {
+            var loginBox = document.getElementById('login-box');
+            loginBox.classList.toggle('is-active');
+        }
+        var x = document.getElementById("login");
+        var y = document.getElementById("register");
+        var z = document.getElementById("btn");
+
+        function register() {
+            x.style.left = "-400px";
+            y.style.left = "50px";
+            z.style.left = "110px";
+        }
+
+        function login() {
+            x.style.left = "50px";
+            y.style.left = "450px";
+            z.style.left = "0px";
+        }
+    </script>
 
 </body>
+
 </html>

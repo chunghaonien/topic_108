@@ -82,6 +82,11 @@
     </nav>
 
     <section class="home">
+        {% if user_logged_in %}
+        <p>使用者已登入，歡迎 {{ username }}</p>
+    {% else %}
+        <p>使用者未登入</p>
+    {% endif %}
 
         <div class="login-box" id="login-box">
             <div class="button-box">
@@ -89,17 +94,17 @@
                 <button type="button" class="toggle-btn" onclick="login()">登入</button>
                 <button type="button" class="toggle-btn" onclick="register()">註冊</button>
             </div>
-            <from id="login" class="input-group" method="POST" action="/login">
-                <input type="text" class="input-field" id="account" placeholder="帳號" required>
-                <input type="text" class="input-field" id="password" placeholder="密碼" required>
+            <form id="login" class="input-group" method="POST" action="/login">
+                <input type="text" class="input-field" name="account" placeholder="帳號" required>
+                <input type="password" class="input-field" name="password" placeholder="密碼" required>
                 <button type="submit" class="submit-btn">登入</button>
-            </from>
-            <from id="register" class="input-group" method="POST" action="/register">
-                <input type="text" class="input-field" id="account" placeholder="帳號" required>
-                <input type="password" class="input-field" id="password" placeholder="密碼" required>
-                <input type="text" class="input-field" id="username" placeholder="用戶名稱" required>
+            </form>
+            <form id="register" class="input-group" method="POST" action="/register">
+                <input type="text" class="input-field" name="account" placeholder="帳號" required>
+                <input type="password" class="input-field" name="password" placeholder="密碼" required>
+                <input type="text" class="input-field" name="username" placeholder="用戶名稱" required>
                 <button type="submit" class="submit-btn">註冊</button>
-            </from>
+            </form>
         </div>
 
     </section>
@@ -125,20 +130,27 @@
             y.style.left = "450px";
             z.style.left = "0px";
         }
-        // 假設在這裡檢查使用者登入狀態，如果已登入則呼叫 changeToLoggedInStyle() 函式
-        var isLoggedIn = false; // 假設使用者未登入
-
-        if (isLoggedIn) {
-            changeToLoggedInStyle();
+    
+        function passDataFromFlask(user) {
+            console.log(user[0].id);
+            console.log(user[0].password);
+            console.log(user[0].name);
+            console.log(user[0].email);
+            console.log(user[0].birthday);
         }
 
-        function changeToLoggedInStyle() {
-            // 修改格子樣式或其他相關內容
-            var loginBtn = document.querySelector('.toggle-btn');
-            loginBtn.innerHTML = "會員資料"; // 修改按鈕文字為 "會員資料"
-            // 其他修改樣式的程式碼...
-        }
-        
+        var request = new XMLHttpRequest();
+        request.open('GET', '/get_user_data', true);
+        request.onreadystatechange = function() {
+            if (request.readyState === 4 && request.status === 200) {
+                var user = JSON.parse(request.responseText);
+                passDataFromFlask(user);
+            }
+        };
+        request.send();
+
+    
+
     </script>
 
 </body>

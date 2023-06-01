@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>iCrawler</title>
+
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="../static/img/logo.png" alt="logo">
+                </span>
+
+                <div class="text header-text">
+                    <span class="name">iCrawler</span>
+                    <span class="profession">爬蟲委託平台</span>
+                </div>
+            </div>
+
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="meun-bar">
+            <div class="meun">
+                <li class="search-box">
+                    <i class='bx bx-search-alt-2 icon'></i>
+                    <input type="text" placeholder="搜尋...">
+                </li>
+                <ul class="meun-links">
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class='bx bx-home icon'></i>
+                            <span class="text nav-text">主頁</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class='bx bx-notepad icon'></i>
+                            <span class="text nav-text">委託</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="#">
+                            <i class='bx bx-upload icon'></i>
+                            <span class="text nav-text">上傳</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div class="bottom-conent">
+                <li class="nav-link">
+                    <a href="#" onclick="toggleActive()">
+                        <i class='bx bx-log-in icon'></i>
+                        <span class="text nav-text">登入</span>
+                    </a>
+                </li>
+
+                <li class="mode">
+                    <div class="moon-sun">
+                        <i class='bx bx-moon icon moon'></i>
+                        <i class='bx bx-sun icon sun'></i>
+                    </div>
+                    <span class="mode-text text">深色模式</span>
+
+                    <div class="toggle-switch">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </div>
+
+
+
+        </div>
+    </nav>
+
+    <section class="home">
+        <!-- ====== -->
+        <div class="rightbox">
+            <div class="profile tabshow">
+                <h1>個人設定</h1>
+                <h2>用戶名稱</h2>
+                <input type="text" class="input" size="40" value="請輸入用戶名稱">
+                <h2>出生年月日<h2>
+                <input type="date" id="date" name="birth" value="2023-01-01" min="1900-01-01" max="2023-12-31">
+                <h2>EMAIL</h2>
+                <input type="text" class="input" size="40" value="請輸入電子郵件">
+                <h2>密碼</h2>
+                <input type="text" class="input" size="40" value="請輸入密碼">
+                <br>
+                <button class="button">更新</button>
+            </div>
+        </div>
+        <!-- ====== -->
+        <div class="login-box" id="login-box">
+            <div class="button-box">
+                <div id=btn></div>
+                <button type="button" class="toggle-btn" onclick="login()">登入</button>
+                <button type="button" class="toggle-btn" onclick="register()">註冊</button>
+            </div>
+            <from id="login" class="input-group" method="POST" action="/login">
+                <input type="text" class="input-field" id="account" placeholder="帳號" required>
+                <input type="text" class="input-field" id="password" placeholder="密碼" required>
+                <button type="submit" class="submit-btn">登入</button>
+            </from>
+            <from id="register" class="input-group" method="POST" action="/register">
+                <input type="text" class="input-field" id="register-account" placeholder="帳號" required>
+                <input type="password" class="input-field" id="register-password" placeholder="密碼" required>
+                <input type="text" class="input-field" id="register-username" placeholder="用戶名稱" required>
+                <button type="submit" class="submit-btn">註冊</button>
+            </from>
+        </div>
+
+    </section>
+
+    <script src="../static/js/script.js"></script>
+    <script>
+        Today = new Date();
+        console.log(Today);
+
+        y = Today.getFullYear();
+        console.log('年:' + y);
+
+        mh = (Today.getMonth() + 1);
+        console.log("月:" + mh);
+
+        d = Today.getDate();
+        console.log("日:" + d);
+
+        h = Today.getHours();
+        console.log("時:" + h);
+
+        m = Today.getMinutes();
+        console.log("分:" + m);
+
+        s = Today.getSeconds();
+        console.log("秒:" + s);
+        
+        function toggleActive() {
+            var loginBox = document.getElementById('login-box');
+            loginBox.classList.toggle('is-active');
+        }
+        var x = document.getElementById("login");
+        var y = document.getElementById("register");
+        var z = document.getElementById("btn");
+
+        function register() {
+            x.style.left = "-400px";
+            y.style.left = "50px";
+            z.style.left = "110px";
+        }
+
+        function login() {
+            x.style.left = "50px";
+            y.style.left = "450px";
+            z.style.left = "0px";
+        }
+
+        
+    </script>
+
+</body>
+
+</html>

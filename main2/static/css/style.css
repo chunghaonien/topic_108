@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nuniton:400,900|Montserrat|Roboto');
 
 * {
     font-family: 'Poppins', sans-serif;
@@ -294,20 +295,153 @@ body.dark .switch::before {
     width: calc(100% - 88px);
 }
 
-/* ============================= */
+/* ===== login ===== */
 
 .login-box{
-    width: 320px;
+    width: 380px;
+    height: 410px;
     border-radius: 10px;
-    overflow: hidden;
     background: #fff;
-    height: 420px;
     margin: 20px;
-    margin-top: 60px;
+    position:absolute;
+    bottom:0px;
+    padding: 5px;
     transform: scale(0);
     transition: var(--tran-04);
+    overflow: hidden;
 }
 
 .is-active.login-box{
     transform: scale(1);
+    transition: var(--tran-05);
+}
+
+.button-box{
+    width: 220px;
+    margin: 35px auto;
+    position: relative;
+    box-shadow: 0 0 20px 9px #0eb6f848;
+    border-radius: 30px;
+}
+
+.toggle-btn{
+    padding: 10px 30px;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    outline: none;
+    position: relative;
+}
+
+#btn{
+    top: 0;
+    left: 0;
+    position: absolute;
+    width: 110px;
+    height: 100%;
+    background: linear-gradient(to right, #1070ffd7,#5cd8fe);
+    border-radius: 30px;
+    transition: var(--tran-04);
+}
+
+.input-group{
+    top: 100px;
+    position: absolute;
+    width: 280px;
+    transition: var(--tran-05);
+}
+
+.input-field{
+    width: 100%;
+    padding: 10px 0;
+    margin: 5px 0;
+    border-left: 0;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 1px solid #1f0a0a;
+    outline: none;
+    background: transparent;
+}
+
+.submit-btn{
+    width: 85%;
+    padding: 10px 30px;
+    cursor: pointer;
+    display: block;
+    margin: auto;
+    background: linear-gradient(to right, #1070ffd7,#5cd8fe);
+    border: 0;
+    outline: none;
+    border-radius: 30px;
+    margin-top: 50px;
+}
+
+
+.chech-box{
+    margin: 30px 10px 30px 0;
+}
+
+.log-sp{
+    color: #777;
+    font-size: 12px;
+    bottom: 68px;
+    position: absolute;
+}
+
+#register{
+    left: 50px;
+}
+
+#login{
+    left: 450px;
+}
+
+
+/* 個人設定 */
+.rightbox{
+    width:calc(100% - 100px);;
+    height: auto;
+    margin: auto;
+    position: relative;
+    margin-top: 2%;
+}
+
+h1{
+    color:#1070ffd7;
+    font-family: "Montserrat", sans-serif;
+    font-size: 4rem;
+    margin-left: auto;
+    margin-top: auto;
+}
+
+h2{
+    color: #777;
+    font-size: 2rem;
+    letter-spacing: 1px;
+    margin-left: auto;
+    margin-top: auto;
+}
+
+.input, p{
+    border: 0;
+    border-bottom: 1px solid#3fb6a8;
+    background: #E4E9f7;
+}
+
+.button{
+    font-size: 20px;
+    border: 0;
+    color: #fff;
+    background: #1070ffd7;
+    padding: 7px 15px;
+    box-shadow: 0px 2px 4px 0px
+    rgba(0,0,0,32);
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+#date{
+    border: 0;
+    border-bottom: 1px solid#3fb6a8;
+    background: #E4E9f7;
 }

@@ -1,41 +1,35 @@
-from flask import Flask, render_template, request, redirect, url_for
-from flask_mysqldb import MySQL
+from flask import Flask, render_template, request
+from mod.user import login, register
 
 app = Flask(__name__)
-
-# MySQL資料庫連線設定
-app.config['MYSQL_HOST'] = 'localhost'  # MySQL伺服器位址
-app.config['MYSQL_USER'] = 'username'  # MySQL使用者名稱
-app.config['MYSQL_PASSWORD'] = 'password'  # MySQL使用者密碼
-app.config['MYSQL_DB'] = 'database_name'  # MySQL資料庫名稱
-
-mysql = MySQL(app)
+app.config['JSON_AS_ASCII'] = False
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.form['username']
-    password = request.form['password']
+@app.route('/login', methods=['GET', 'POST'])
+def login_route():
+    if request.method == "POST":
+        account = request.form.get('account')
+        password = request.form.get('password')
+        if login(account, password):
+            return render_template('ok.html')
+        else:
+            return render_template('no.html')
 
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM users WHERE username = %s", (username,))
-    user = cur.fetchone()
-    cur.close()
-
-    if user and user[2] == password:
-        # 登入成功
-        return redirect(url_for('dashboard'))
-    else:
-        # 登入失敗，顯示錯誤訊息
-        error = '登入失敗，請檢查您的帳號和密碼！'
-        return render_template('index.html', error=error)
-
-@app.route('/dashboard')
-def dashboard():
-    return '歡迎進入儀表板！'
+@app.route('/register', methods=['GET', 'POST'])
+def register_route():
+    if request.method == "POST":
+        account = request.form.get('account')
+        password = request.form.get('password')
+        username = request.form.get('username')
+        if register(account, password, username):
+            return render_template('ok.html')
+        else:
+            return render_template('no.html')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)

@@ -78,38 +78,28 @@
                     </div>
                 </li>
             </div>
-
-
-
         </div>
     </nav>
 
     <section class="home">
-        <div class="text"></div>
+
         <div class="login-box" id="login-box">
-            <div id="from-box">
-                <div class="button-box">
-                    <div id=btn></div>
-                    <button type="button" class="toggle-btn" onclick="login()">登入</button>
-                    <button type="button" class="toggle-btn" onclick="register()">註冊</button>
-                </div>
-                <from id="login" class="input-group">
-                    <input type="text" class="input-field" placeholder="User Id" required>
-                    <input type="text" class="input-field" placeholder="Enter Password" required>
-                    <input type="checkbox" class="chech-box"><span>記住我</span>
-                    <button type="submit" class="submit-btn">登入</button>
-                </from>
-                <from id="register" class="input-group">
-                    <input type="text" class="input-field" placeholder="User Id" required>
-                    <input type="email" class="input-field" placeholder="Email Id" required>
-                    <input type="text" class="input-field" placeholder="Enter Password" required>
-
-                    <input type="checkbox" class="chech-box"><span>我同意用戶協定</span>
-                    <button type="submit" class="submit-btn">註冊</button>
-
-                </from>
+            <div class="button-box">
+                <div id=btn></div>
+                <button type="button" class="toggle-btn" onclick="login()">登入</button>
+                <button type="button" class="toggle-btn" onclick="register()">註冊</button>
             </div>
-
+            <from id="login" class="input-group" method="POST" action="/login">
+                <input type="text" class="input-field" id="account" placeholder="帳號" required>
+                <input type="text" class="input-field" id="password" placeholder="密碼" required>
+                <button type="submit" class="submit-btn">登入</button>
+            </from>
+            <from id="register" class="input-group" method="POST" action="/register">
+                <input type="text" class="input-field" id="account" placeholder="帳號" required>
+                <input type="password" class="input-field" id="password" placeholder="密碼" required>
+                <input type="text" class="input-field" id="username" placeholder="用戶名稱" required>
+                <button type="submit" class="submit-btn">註冊</button>
+            </from>
         </div>
 
     </section>
@@ -135,6 +125,20 @@
             y.style.left = "450px";
             z.style.left = "0px";
         }
+        // 假設在這裡檢查使用者登入狀態，如果已登入則呼叫 changeToLoggedInStyle() 函式
+        var isLoggedIn = false; // 假設使用者未登入
+
+        if (isLoggedIn) {
+            changeToLoggedInStyle();
+        }
+
+        function changeToLoggedInStyle() {
+            // 修改格子樣式或其他相關內容
+            var loginBtn = document.querySelector('.toggle-btn');
+            loginBtn.innerHTML = "會員資料"; // 修改按鈕文字為 "會員資料"
+            // 其他修改樣式的程式碼...
+        }
+        
     </script>
 
 </body>

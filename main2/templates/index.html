@@ -96,7 +96,7 @@
         {% if user_logged_in %}
         <div class="profile-menu" id="profile-menu">
             <div class="sub-menu">
-                <form method="POST" action="/page_switch">
+                <form method="POST" action="/page">
                     <div class="user-info">
                         <i class='bx bx-user sub'></i>
                         <span class="meun-name">{{ username }}</span>
@@ -105,12 +105,12 @@
 
                     <button href="#" class="sub-menu-like">
                         <i class='bx bx-cog sub'></i>
-                        <span class="sub-text" name="page" value="settings">設定</span>
+                        <span class="sub-text" >會員資料</span>
                         <span class="sub-1">></span>
                     </button>
-                    <button href="#" class="sub-menu-like">
+                    <button href="#" class="sub-menu-like" name="page" value="settings">
                         <i class='bx bx-cog sub'></i>
-                        <span class="sub-text">功能2</span>
+                        <span class="sub-text" >資料設定</span>
                         <span class="sub-1">></span>
                     </button>
                 </form>

@@ -12,15 +12,20 @@ login_password = None
 def index():
     return render_template('index.html')
 
-@app.route('/page_switch', methods=['POST', 'GET'])
+@app.route('/page', methods=['POST', 'GET'])
 def page_switch_route():
-    page = request.form['page']
+    page = request.form.get('page')
     if page == 'settings':
-        return redirect(url_for('settings'))
+        user_data = get_user_data(login_account, login_password)
+        if user_data:
+            return render_template('user-set.html', user_data=user_data[0])
+        else:
+            return render_template('user-set.html', user_data=None)
     elif page == 'index':
+        return render_template('index.html')
+    else:
         return redirect(url_for('index'))
 
-    return redirect(url_for('index'))
 
 
 @app.route('/settings', methods=['POST', 'GET'])
@@ -77,7 +82,7 @@ def register_route():
     username = request.form['username']
 
     if register(account, password, username):
-        return render_template('ok.html')
+        return render_template('index.html')
     else:
         return render_template('no.html')
 

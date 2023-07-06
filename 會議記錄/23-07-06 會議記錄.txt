@@ -1,0 +1,5 @@
+1.有無java component，若無則學C#
+2.論文尋找有無類似題目
+3.關鍵字crawler和web scraping
+4.有無類似網站
+5.使用者需求（目標客群、用這東西的I/O是啥）

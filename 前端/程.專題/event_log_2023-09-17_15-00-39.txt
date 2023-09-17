@@ -1,0 +1,16 @@
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -1.0
+Mouse pressed at (5, 226) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000001B4567E1460>
+Mouse released at (5, 226) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000001B4567E1460>
+Mouse pressed at (5, 226) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000001B4567E1460>
+Mouse released at (5, 226) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000001B4567E1460>
+Mouse pressed at (5, 226) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000001B4567E1460>
+Mouse released at (5, 226) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000001B4567E1460>
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -1.0

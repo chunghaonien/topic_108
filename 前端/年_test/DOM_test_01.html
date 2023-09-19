@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>查看元素詳細信息</title>
+    <style>
+        .highlighted-element {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <h1>這是一個示例網頁</h1>
+    <p>點擊下面的元素以查看詳細信息：</p>
+    <div class="element" id="element1">這是元素1的內容</div>
+    <div class="element" id="element2">這是元素2的內容</div>
+    
+    <script>
+        // 獲取所有具有"class"屬性的元素
+        const elements = document.querySelectorAll('.element');
+
+        // 將點擊事件監聽器添加到每個元素
+        elements.forEach((element) => {
+            element.addEventListener('click', () => {
+                // 移除先前的反白元素
+                const highlightedElement = document.querySelector('.highlighted-element');
+                if (highlightedElement) {
+                    highlightedElement.classList.remove('highlighted-element');
+                }
+
+                // 將被點擊的元素反白
+                element.classList.add('highlighted-element');
+
+                // 獲取元素的內容和名稱
+                const elementContent = element.textContent;
+                const elementName = element.tagName;
+
+                // 顯示詳細信息
+                alert(`選擇的元素名稱：${elementName}\n元素內容：${elementContent}`);
+            });
+        });
+    </script>
+</body>
+</html>

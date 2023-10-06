@@ -1,6 +1,0 @@
-Key pressed: 16777248
-Key released: 16777248
-Key released: 80
-Key released: 84
-Key released: 84
-Key released: 16777220

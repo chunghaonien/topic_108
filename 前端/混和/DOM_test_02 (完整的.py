@@ -9,6 +9,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtCore import QUrl
 from datetime import datetime
+from PyQt5.QtCore import QTimer
 
 # 定義一個用於追蹤事件的類別
 class EventTracker(QObject):
@@ -21,18 +22,28 @@ class EventTracker(QObject):
         self.event_log = []
         self.current_log_file = self.create_log_file()
         self.selected_text_to_record = ""
+        self.seconds_elapsed = 0  # 記錄已經過的秒數
 
+        # 創建計時器，每秒觸發一次
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_time)
+        self.timer.start(1000)  # 每秒更新一次
     def create_log_file(self):
         now = datetime.now()
         file_name = now.strftime("event_log_%Y-%m-%d_%H-%M-%S.txt")
         return file_name
 
     def save_to_file(self, event_info):
-        timestamp = datetime.now().strftime("%H:%M")  # 使用自定義的時間格式，例如 HH:MM
+        timestamp = f"{self.minutes_elapsed:02d}:{self.remaining_seconds:02d}"  # 以分鐘和秒數的格式顯示時間
         formatted_event_info = f"{timestamp} {event_info}"
         with open(self.current_log_file, "a", encoding="utf-8") as f:
             f.write(formatted_event_info + "\n")
 
+    # 更新已經過的時間（秒）
+    def update_time(self):
+        self.seconds_elapsed += 1
+        self.minutes_elapsed = self.seconds_elapsed // 60
+        self.remaining_seconds = self.seconds_elapsed % 60
 
     def update_log(self):
         pass

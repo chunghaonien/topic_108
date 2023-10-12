@@ -1,0 +1,12 @@
+Key pressed: 70
+Key released: 70
+Key pressed: 71
+Key released: 71
+Key pressed: 68
+Key released: 68
+Key pressed: 68
+Key released: 68
+Key pressed: 70
+Key released: 70
+Key pressed: 70
+Key released: 70

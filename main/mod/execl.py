@@ -27,4 +27,3 @@ def add_excel(data):
             ws.write(i, j, data[i][j])
     wb.save('data.xls')
 
-    

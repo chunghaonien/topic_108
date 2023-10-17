@@ -5,6 +5,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import pyqtSignal
 from datetime import datetime
 from PyQt5.QtCore import QTimer, QDateTime
 from pynput import mouse, keyboard
@@ -160,6 +161,9 @@ class MainWindow(QWidget):
 
 # 定義瀏覽器窗口類別
 class WebBrowserWindow(QMainWindow):
+    return_url_signal = pyqtSignal(str)
+    return_path_signal = pyqtSignal(str)
+
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
@@ -255,6 +259,7 @@ class WebBrowserWindow(QMainWindow):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_entry = f"{timestamp}: 網頁 URL 變化 - {url_text}\n"
             self.main_window.event_log.append(log_entry)
+            self.return_url_signal.emit(url_text)  # 发送返回值到信号
         # url_text 就是 URL 的文字表示
 
     # 定義 handle_selection_changed 方法，用於處理網頁選擇文本事件
@@ -307,11 +312,4 @@ class WebBrowserWindow(QMainWindow):
             self.main_window.append_action(event_info)
             #只顯示XPATH路徑
             xpath = result.split(',')[1][:-1]
-            print(xpath)
-            
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    main_window = MainWindow()
-    web_browser_window = WebBrowserWindow(main_window)
-    app.exec_()
-
+            self.return_path_signal.emit(xpath)

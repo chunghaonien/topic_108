@@ -1,0 +1,35 @@
+Mouse pressed at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse released at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse pressed at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse released at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse pressed at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse released at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse pressed at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse released at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse pressed at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse released at (9, 188) - Buttons: <PyQt5.QtCore.Qt.MouseButtons object at 0x000002171EAC4C80>
+Mouse wheel scrolled: -1.8
+Mouse wheel scrolled: -0.43333333333333335
+Mouse wheel scrolled: -0.8
+Mouse wheel scrolled: -0.525
+Mouse wheel scrolled: -0.525
+Mouse wheel scrolled: -0.23333333333333334
+Mouse wheel scrolled: -0.225
+Mouse wheel scrolled: -0.20833333333333334
+Mouse wheel scrolled: -0.39166666666666666
+Mouse wheel scrolled: -0.26666666666666666
+Mouse wheel scrolled: -0.225
+Mouse wheel scrolled: -0.06666666666666667
+Mouse wheel scrolled: -1.15
+Mouse wheel scrolled: -0.6916666666666667
+Mouse wheel scrolled: -0.6
+Mouse wheel scrolled: -1.0
+Mouse wheel scrolled: -0.2916666666666667
+Mouse wheel scrolled: -0.2833333333333333
+Mouse wheel scrolled: -0.275
+Mouse wheel scrolled: -0.275
+Mouse wheel scrolled: -0.23333333333333334
+Mouse wheel scrolled: -0.05
+Mouse wheel scrolled: -0.041666666666666664
+Mouse wheel scrolled: -0.075
+Key pressed: 16777249

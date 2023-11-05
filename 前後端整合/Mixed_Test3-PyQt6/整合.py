@@ -58,7 +58,7 @@ class MainWindow(QWidget):
 
         self.start_time = None
 
-        self.show()
+        # self.show()
 
     def update_display(self):
         # 實時更新滑鼠座標
@@ -184,7 +184,7 @@ class WebBrowserWindow(QMainWindow):
                 margin: 2px;
             }
         ''')
-        self.show()
+        # self.show()
 
         # 創建 Web 瀏覽器視窗
         self.browser = QWebEngineView()
@@ -223,8 +223,14 @@ class WebBrowserWindow(QMainWindow):
         self.back_button.clicked.connect(self.browser.back)
         self.back_button.setFixedSize(80, 30)
 
+        self.log_in_out_button = QPushButton("登入註冊", self)
+        self.log_in_out_button.clicked.connect(self.browser.back)
+        self.log_in_out_button.setFixedSize(80, 30)
+
+
         # 創建一個水平佈局並將按鈕添加到其中
         button_layout = QHBoxLayout()
+        button_layout.addWidget(self.log_in_out_button)
         button_layout.addWidget(self.back_button)
         button_layout.addWidget(self.record_highlight_button)
         button_layout.addWidget(self.scraping_button)
@@ -355,6 +361,7 @@ if __name__ == '__main__':
     main_window = MainWindow()
     web_browser_window = WebBrowserWindow(main_window)
 
+
     # 使用 QSplitter 將瀏覽器窗口放在左邊，MainWindow 放在右邊
     splitter = QSplitter()
     splitter.addWidget(web_browser_window)
@@ -365,5 +372,6 @@ if __name__ == '__main__':
     window.setCentralWidget(splitter)
     window.setWindowTitle('Integrated Window')
     window.showMaximized()  # 最大化顯示
+    # web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
 
     app.exec()

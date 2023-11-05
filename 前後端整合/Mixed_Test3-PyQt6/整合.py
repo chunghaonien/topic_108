@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTe
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSlot, QDateTime, QTimer, QUrl
 from PyQt6.QtCore import Qt
+from selenium.webdriver.common.by import By
 from selenium import webdriver
 from pynput import mouse, keyboard
 from datetime import datetime

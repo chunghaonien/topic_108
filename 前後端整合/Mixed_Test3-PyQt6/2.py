@@ -1,20 +1,16 @@
 import sys
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTextEdit, QLineEdit, QPushButton, QHBoxLayout, QLabel, QFileDialog
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTextEdit, QLineEdit, QPushButton, QHBoxLayout, QLabel, QFileDialog, QSplitter
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtCore import pyqtSlot
-from PyQt6.QtCore import QDateTime
+from PyQt6.QtCore import pyqtSlot, QDateTime, QTimer, QUrl
+from PyQt6.QtCore import Qt
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from pynput import mouse, keyboard
 from datetime import datetime
 import threading
 import time
 from PyQt6 import QtCore
-from PyQt6.QtCore import QUrl
 
-# 定義一個用於追蹤事件的類別
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -161,7 +157,7 @@ class MainWindow(QWidget):
         with open('event_log.txt', 'a') as file:
             file.write(event_info + '\n')
 
-# 定義瀏覽器窗口類別
+
 class WebBrowserWindow(QMainWindow):
     scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成
 
@@ -354,8 +350,19 @@ class WebBrowserWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+
     main_window = MainWindow()
     web_browser_window = WebBrowserWindow(main_window)
-    web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
+
+    # 使用 QSplitter 將瀏覽器窗口放在左邊，MainWindow 放在右邊
+    splitter = QSplitter()
+    splitter.addWidget(web_browser_window)
+    splitter.addWidget(main_window)
+    splitter.setSizes([600, 300])  # 設置初始寬度比例
+
+    window = QMainWindow()
+    window.setCentralWidget(splitter)
+    window.setWindowTitle('Integrated Window')
+    window.showMaximized()  # 最大化顯示
 
     app.exec()

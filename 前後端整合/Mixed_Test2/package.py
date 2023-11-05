@@ -157,7 +157,7 @@ class MainWindow(QWidget):
                     file.write(f"{time} {action}\n")
 
     def save_to_file(self, event_info):
-        # 在這裡實現將事件信息保存到文件的邏輯
+        # 在這裡實現將事件信息保存到文件
         with open('event_log.txt', 'a') as file:
             file.write(event_info + '\n')
 
@@ -243,39 +243,43 @@ class WebBrowserWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-    # 定義 navigate_to_url 方法，用於將瀏覽器導向輸入的 URL
+    # 將瀏覽器導向輸入的 URL
     def navigate_to_url(self):
         q = QUrl(self.urlbar.text())
         if q.scheme() == '':
             q.setScheme('http')
         self.browser.setUrl(q)
 
-    # 定義 renew_urlbar 方法，用於更新 URL 地址欄的文字
+    # 更新 URL 地址欄的文字
     def renew_urlbar(self, q):
         new_url = q.toString()
         self.urlbar.setText(new_url)
         self.urlbar.setCursorPosition(0)
 
-        # 在這裡記錄新的 URL 到事件日誌文件
+        # 記錄新的 URL 到事件日誌文件
         log_entry = f" 網頁: {new_url}\n"
         self.main_window.event_log.append(log_entry)
         self.main_window.append_action(log_entry)
 
-    # 定義 log_url_change 方法，用於記錄網頁 URL 變化事件(點擊連結)
+    # 記錄網頁 URL 變化事件(點擊連結)
     def log_url_change(self, url):
         if url.isValid():
             url_text = url.toString()
+<<<<<<< HEAD
+            self.return_url_signal.emit(url_text)  # 發送返回值
+=======
+>>>>>>> main
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_entry = f"{timestamp}: 網頁 URL 變化 - {url_text}\n"
             self.main_window.event_log.append(log_entry)
 
-    # 定義 handle_selection_changed 方法，用於處理網頁選擇文本事件
+    # 處理網頁選擇文本事件
     def handle_selection_changed(self):
         selected_text = self.browser.page().selectedText()
         if selected_text:
             self.main_window.set_selected_text_to_record(selected_text)
 
-    # 定義 show_element_info 方法，用於顯示反白文本的元素資訊
+    # 顯示反白文本的元素資訊
     def show_element_info(self):
         selected_text = self.main_window.selected_text_to_record
         if selected_text:
@@ -309,7 +313,7 @@ class WebBrowserWindow(QMainWindow):
             '''
             self.browser.page().runJavaScript(js_code, self.handle_js_call)
             
-    # 定義 handle_js_call 方法，用於處理 JavaScript 呼叫並將反白內容存入事件追蹤器
+    # 處理 JavaScript 呼叫並將反白內容存入事件追蹤器
     @pyqtSlot(str)
     def handle_js_call(self, result):
         if self.main_window.event_log:

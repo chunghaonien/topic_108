@@ -223,14 +223,8 @@ class WebBrowserWindow(QMainWindow):
         self.back_button.clicked.connect(self.browser.back)
         self.back_button.setFixedSize(80, 30)
 
-        self.log_in_out_button = QPushButton("登入註冊", self)
-        self.log_in_out_button.clicked.connect(self.browser.back)
-        self.log_in_out_button.setFixedSize(80, 30)
-
-
         # 創建一個水平佈局並將按鈕添加到其中
         button_layout = QHBoxLayout()
-        button_layout.addWidget(self.log_in_out_button)
         button_layout.addWidget(self.back_button)
         button_layout.addWidget(self.record_highlight_button)
         button_layout.addWidget(self.scraping_button)

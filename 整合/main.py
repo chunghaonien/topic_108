@@ -81,10 +81,11 @@ class RegisterPage(QDialog):
         password = self.password_textbox.text()
         confirm_password = self.confirm_password_textbox.text()
         username = self.username_textbox.text()
+        
         #驗證密碼是否相同
         if (password != confirm_password):
             print("密碼不相同")
-            self.return_to_login()
+            self.open_register_page()
         else:
             self.communicator.RegisterSignal.emit(account, password, username)
             subprocess.Popen(["python", os.path.join(self.script_dir, "Backend_wiring_register.py"), account, password, username])

@@ -1,4 +1,6 @@
-pip install PyQt5
+pip install PyQt6
 pip install PyQtWebEngine
 pip install selenium
 pip install webdriver-manager
+pip install pynput
+pip install websockets

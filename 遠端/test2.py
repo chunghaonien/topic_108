@@ -2,7 +2,7 @@ import asyncio
 import websockets
 
 async def send_data():
-    uri = "ws://26.30.97.239:8765"  # 請替換為虛擬機的 IP 地址和端口
+    uri = "ws://140.131.114.149:80"  # 請替換為虛擬機的 IP 地址和端口
 
     async with websockets.connect(uri) as websocket:
         while True:

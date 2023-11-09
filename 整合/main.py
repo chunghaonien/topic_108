@@ -8,12 +8,15 @@ import subprocess
 import os
 
 class Communicate(QObject):
-    mySignal = pyqtSignal(str, str)
+    RegisterSignal = pyqtSignal(str, str, str)
+    LoginSignal = pyqtSignal(str, str)
 
 class RegisterPage(QDialog):
-    def __init__(self, loginDialog):
+    def __init__(self, loginDialog, communicator):
         super().__init__()
         self.loginDialog = loginDialog
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.communicator = communicator
         self.initUI()
 
     def initUI(self):
@@ -21,19 +24,35 @@ class RegisterPage(QDialog):
 
         # 帳號欄位
         account_layout = QHBoxLayout()
-        account_label = QLabel('帳號', self)
-        account_textbox = QLineEdit(self)
-        account_layout.addWidget(account_label)
-        account_layout.addWidget(account_textbox)
+        self.account_label = QLabel('帳號', self)
+        self.account_textbox = QLineEdit(self)
+        account_layout.addWidget(self.account_label)
+        account_layout.addWidget(self.account_textbox)
         layout.addLayout(account_layout)
 
         # 密碼欄位
         password_layout = QHBoxLayout()
-        password_label = QLabel('密碼', self)
-        password_textbox = QLineEdit(self)
-        password_layout.addWidget(password_label)
-        password_layout.addWidget(password_textbox)
+        self.password_label = QLabel('密碼', self)
+        self.password_textbox = QLineEdit(self)
+        password_layout.addWidget(self.password_label)
+        password_layout.addWidget(self.password_textbox)
         layout.addLayout(password_layout)
+
+        # 確認密碼欄位
+        confirm_password_layout = QHBoxLayout()
+        self.confirm_password_label = QLabel('確認密碼', self)
+        self.confirm_password_textbox = QLineEdit(self)
+        confirm_password_layout.addWidget(self.confirm_password_label)
+        confirm_password_layout.addWidget(self.confirm_password_textbox)
+        layout.addLayout(confirm_password_layout)
+
+        # 暱稱欄位
+        username_layout = QHBoxLayout()
+        self.username_label = QLabel('暱稱', self)
+        self.username_textbox = QLineEdit(self)
+        username_layout.addWidget(self.username_label)
+        username_layout.addWidget(self.username_textbox)
+        layout.addLayout(username_layout)
         
         # 水平布局來放置返回按鈕和確定按鈕
         buttons_layout = QHBoxLayout()
@@ -41,7 +60,7 @@ class RegisterPage(QDialog):
         # 確定按鈕
         yes_button = QPushButton('確定', self)
         yes_button.setFixedSize(80, 30)
-        yes_button.clicked.connect(self.return_to_login)
+        yes_button.clicked.connect(self.onRegisterButtonClicked)  # 連接到新的方法
 
         # 將兩個按鈕放入水平佈局中
         buttons_layout.addWidget(yes_button)
@@ -56,6 +75,20 @@ class RegisterPage(QDialog):
     def return_to_login(self):
         self.close()
         self.loginDialog.show()
+
+    def onRegisterButtonClicked(self):
+        account = self.account_textbox.text()
+        password = self.password_textbox.text()
+        confirm_password = self.confirm_password_textbox.text()
+        username = self.username_textbox.text()
+        #驗證密碼是否相同
+        if (password != confirm_password):
+            print("密碼不相同")
+            self.return_to_login()
+        else:
+            self.communicator.RegisterSignal.emit(account, password, username)
+            subprocess.Popen(["python", os.path.join(self.script_dir, "Backend_wiring_register.py"), account, password, username])
+            self.return_to_login()
 
 class LoginDialog(QDialog):
     def __init__(self, communicator):
@@ -111,21 +144,23 @@ class LoginDialog(QDialog):
         self.show()
     
     def open_register_page(self):
-        register_page = RegisterPage(self)
+        register_page = RegisterPage(self, self.communicator)
         register_page.exec()
     
     def onLoginButtonClicked(self):
         account = self.account_textbox.text()
         password = self.password_textbox.text()
 
-        self.communicator.mySignal.emit(account, password)
-        subprocess.Popen(["python", os.path.join(self.script_dir, "Backend_wiring.py"), account, password])
+        self.communicator.LoginSignal.emit(account, password)
+        subprocess.Popen(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password])
 
+    
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    communicator = Communicate()  # 創建 Communicate 的實例
+    communicator = Communicate()
     login_dialog = LoginDialog(communicator)  # 將 communicator 傳遞給 LoginDialog 的構造函式
+
 
     app.exec()
 

@@ -8,12 +8,14 @@ async def send_data(account, password, username):
 
     async with websockets.connect(uri) as websocket:
         message = f"register, {account}, {password}, {username}"
-
-        # 向服務端發送包含帳號和密碼的訊息
         await websocket.send(message)
+        response = await websocket.recv()
+        return response
 
-        response = await websocket.recv()  # 接收服務端的回覆
-        print(f"Received response: {response}")
+async def main_async(account, password, username):
+    response = await send_data(account, password, username)
+    print(f"{response}")
+    # 在這裡進行其他的操作
 
 def main():
     # 處理命令列參數
@@ -23,8 +25,10 @@ def main():
     parser.add_argument("username", type=str, help="Username for authentication")
 
     args = parser.parse_args()
-# 在這裡使用 args.account 和 args.password 進行相應的操作
-    asyncio.get_event_loop().run_until_complete(send_data(args.account, args.password, args.username))
+
+    # 在這裡使用 args.account 和 args.password 進行相應的操作
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main_async(args.account, args.password, args.username))
 
 if __name__ == '__main__':
     main()

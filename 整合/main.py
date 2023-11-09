@@ -18,6 +18,7 @@ class RegisterPage(QDialog):
         self.loginDialog = loginDialog
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.communicator = communicator
+        self.get_register_state = ""
         self.initUI()
 
     def initUI(self):
@@ -82,14 +83,141 @@ class RegisterPage(QDialog):
         password = self.password_textbox.text()
         confirm_password = self.confirm_password_textbox.text()
         username = self.username_textbox.text()
+
         #驗證密碼是否相同
         if (password != confirm_password):
-            print("密碼不相同")
-            self.return_to_login()
+            register_confirm_password_popup = Register_confirm_password(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
+            register_confirm_password_popup.exec()
         else:
-            self.communicator.RegisterSignal.emit(account, password, username)
-            subprocess.Popen(["python", os.path.join(self.script_dir, "Backend_wiring_register.py"), account, password, username])
-            self.return_to_login()
+            response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_register.py"), account, password, username], stdout=subprocess.PIPE)
+            decoded1_response = response.stdout.decode()
+            self.get_register_state = decoded1_response
+
+            if self.get_register_state[0:4] == "True":
+                register_success_popup = Register_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
+                register_success_popup.exec()
+            else:
+                register_success_popup = Register_no(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
+                register_success_popup.exec()
+
+class Register_confirm_password(QDialog):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username_textbox):
+        super().__init__()
+        self.registerPage = RegisterPage
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.communicator = communicator
+        self.account_textbox = account_textbox
+        self.password_textbox = password_textbox
+        self.username_textbox = username_textbox
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        log_layout = QVBoxLayout()
+        self.log_label = QLabel('密碼不相同', self)
+        log_layout.addWidget(self.log_label)
+
+        buttons_layout = QHBoxLayout()
+        login_button = QPushButton('確認', self)
+        login_button.setFixedSize(80, 30)
+        login_button.clicked.connect(self.onRegisterButtonClicked_password)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(login_button)
+
+        layout.addLayout(log_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(500, 100, 200, 100)
+        self.setWindowTitle('密碼不相同')
+        self.show()
+
+    def onRegisterButtonClicked_password(self):
+        self.close()
+        self.registerPage.exec()
+
+            
+class Register_yes(QDialog):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username_textbox):
+        super().__init__()
+        self.loginDialog = loginDialog
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.communicator = communicator
+        self.account_textbox = account_textbox
+        self.password_textbox = password_textbox
+        self.username_textbox = username_textbox
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        log_layout = QVBoxLayout()
+        self.log_label = QLabel('註冊成功', self)
+        log_layout.addWidget(self.log_label)
+
+        buttons_layout = QHBoxLayout()
+        login_button = QPushButton('確認', self)
+        login_button.setFixedSize(80, 30)
+        login_button.clicked.connect(self.onRegisterButtonClicked_yes)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(login_button)
+
+        layout.addLayout(log_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(500, 100, 200, 100)
+        self.setWindowTitle('註冊成功')
+        self.show()
+
+    def onRegisterButtonClicked_yes(self):
+        self.close()
+        self.loginDialog.show()
+
+# 登入失敗畫面
+class Register_no(QDialog):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username_textbox):
+        super().__init__()
+        self.registerPage = RegisterPage
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.communicator = communicator
+        self.account_textbox = account_textbox
+        self.password_textbox = password_textbox
+        self.username_textbox = username_textbox
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        log_layout = QVBoxLayout()
+        self.log_label = QLabel('註冊失敗', self)
+        log_layout.addWidget(self.log_label)
+
+        buttons_layout = QHBoxLayout()
+        login_button = QPushButton('確認', self)
+        login_button.setFixedSize(80, 30)
+        login_button.clicked.connect(self.onRegisterButtonClicked_no)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(login_button)
+
+        layout.addLayout(log_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(500, 100, 200, 100)
+        self.setWindowTitle('註冊失敗')
+        self.show()
+
+    def onRegisterButtonClicked_no(self):
+        self.close()
+        self.registerPage.show()
 
 # 初始登入畫面
 class LoginDialog(QDialog):
@@ -154,8 +282,8 @@ class LoginDialog(QDialog):
         password = self.password_textbox.text()
 
         response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
-        decoded_response = response.stdout.decode()
-        self.get_login_state = decoded_response
+        decoded2_response = response.stdout.decode()
+        self.get_login_state = decoded2_response
 
         if self.get_login_state[0:4] == "True":
             login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox)

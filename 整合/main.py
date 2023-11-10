@@ -296,14 +296,13 @@ class LoginDialog(QDialog):
         self.get_login_state = decoded2_response
 
         if account =="" or password =="":
-            login_success_popup = login_no(self, self.communicator, self.account_textbox, self.password_textbox)
+            login_success_popup = login_password(self, self.communicator, self.account_textbox, self.password_textbox)
             login_success_popup.exec()
             return
         
         if self.get_login_state[0:4] == "True":
             login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox)
             login_success_popup.exec()
-        
         else:
             login_success_popup = login_no(self, self.communicator, self.account_textbox, self.password_textbox)
             login_success_popup.exec()
@@ -352,6 +351,44 @@ class login_yes(QDialog):
         subprocess.Popen(["python", os.path.join(self.script_dir, "整合.py")])
 
 # 登入失敗畫面
+class login_password(QDialog):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
+        super().__init__()
+        self.loginDialog = loginDialog
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.communicator = communicator
+        self.account_textbox = account_textbox
+        self.password_textbox = password_textbox
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        log_layout = QVBoxLayout()
+        self.log_label = QLabel('請輸入帳號密碼', self)
+        log_layout.addWidget(self.log_label)
+
+        buttons_layout = QHBoxLayout()
+        login_button = QPushButton('確認', self)
+        login_button.setFixedSize(80, 30)
+        login_button.clicked.connect(self.onLoginButtonClicked)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(login_button)
+
+        layout.addLayout(log_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(500, 100, 200, 100)
+        self.setWindowTitle('請輸入帳號密碼')
+        self.show()
+
+    def onLoginButtonClicked(self):
+        self.close()
+        self.loginDialog.show()
+
 class login_no(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
         super().__init__()
@@ -397,4 +434,3 @@ if __name__ == '__main__':
 
 
     app.exec()
-

@@ -98,7 +98,7 @@ class RegisterPage(QDialog):
                 register_success_popup = Register_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
                 register_success_popup.exec()
             else:
-                register_success_popup = Register_no(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
+                register_success_popup = Register_no(self, self.communicator, self.account_textbox, self.password_textbox, self.confirm_password_textbox, self.username_textbox)
                 register_success_popup.exec()
 
 # 判定密碼是否相同畫面
@@ -176,13 +176,14 @@ class Register_yes(QDialog):
         self.setWindowTitle('註冊成功')
         self.show()
 
-    def onRegisterButtonClicked_yes(self ):
-        self.close()
+    def onRegisterButtonClicked_yes(self):
+        QApplication.closeAllWindows()
+        login_dialog.show()
         
 
 # 註冊失敗畫面
 class Register_no(QDialog):
-    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username_textbox):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, confirm_password_textbox, username_textbox):
         super().__init__()
         self.loginDialog = loginDialog
         self.registerPage = RegisterPage
@@ -190,6 +191,7 @@ class Register_no(QDialog):
         self.communicator = communicator
         self.account_textbox = account_textbox
         self.password_textbox = password_textbox
+        self.confirm_password_textbox = confirm_password_textbox
         self.username_textbox = username_textbox
         self.initUI()
 
@@ -218,8 +220,12 @@ class Register_no(QDialog):
         self.show()
 
     def onRegisterButtonClicked_no(self):
+        self.account_textbox.setText('')
+        self.password_textbox.setText('')
+        self.confirm_password_textbox.setText('')
+        self.username_textbox.setText('')
         self.close()
-        self.registerPage.show()
+
 
 # /////////////////////////////////////////////////登入////////////////////////////////////////////////////////
 

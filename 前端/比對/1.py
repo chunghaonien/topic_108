@@ -1,0 +1,57 @@
+import difflib
+import re
+
+def compare_structure(s1, s2):
+    # 使用正則表達式比較部分結構
+    pattern = re.compile(r'(\d+|\[\])')
+    parts1 = pattern.findall(s1)
+    parts2 = pattern.findall(s2)
+
+    diff_structure = [f"+{i+1}" for i, (part1, part2) in enumerate(zip(parts1, parts2)) if part1 != part2]
+
+    return diff_structure
+
+def get_diff_with_structure(t1, t2):
+    differ = difflib.SequenceMatcher(None, t1, t2)
+    opcodes = differ.get_opcodes()
+
+    diff_with_structure = []
+
+    for tag, i1, i2, j1, j2 in opcodes:
+        if tag == 'replace':
+            # 替換的情況，比較相異地方的結構
+            diff_structure = compare_structure(t1[i1:i2], t2[j1:j2])
+            if diff_structure:
+                # 顯示相異地方，規律性使用 diff_structure[0]
+                diff_with_structure.append(f"{t1[:i1]}[{diff_structure[0]}]{t1[i2:i2+len(diff_structure[0])]}/{t1[i2+len(diff_structure[0]):]}")
+        elif tag == 'delete':
+            # 刪除的情況，只顯示刪除前
+            diff_structure = compare_structure(t1[i1:i2], "")
+            if diff_structure:
+                # 顯示相異地方，規律性使用 diff_structure[0]
+                diff_with_structure.append(f"{t1[:i1]}[{diff_structure[0]}]{t1[i2:i2+len(diff_structure[0])]}/{t1[i2+len(diff_structure[0]):]}")
+        elif tag == 'insert':
+            # 插入的情況，只顯示插入後
+            diff_structure = compare_structure("", t2[j1:j2])
+            if diff_structure:
+                # 顯示相異地方，規律性使用 diff_structure[0]
+                diff_with_structure.append(f"{t2[:j1]}[{diff_structure[0]}]{t2[j2:j2+len(diff_structure[0])]}/{t2[j2+len(diff_structure[0]):]}")
+        elif tag == 'equal':
+            # 相等的情況，直接顯示
+            diff_structure = compare_structure(t1[i1:i2], t2[j1:j2])
+            if diff_structure:
+                # 顯示相異地方，規律性使用 diff_structure[0]
+                diff_with_structure.append(f"{t1[i1:i2+len(diff_structure[0])]}/{t1[i2+len(diff_structure[0]):]}")
+
+    return diff_with_structure
+
+# 示例文本
+sample_data = [
+    'html[1]/body[1]/div[1]/div[6]/div[1]',
+    'html[1]/body[1]/div[2]/div[6]/div[1]',
+]
+
+# 使用示例
+diff_with_structure = get_diff_with_structure(sample_data[0], sample_data[1])
+for diff in diff_with_structure:
+    print(diff)

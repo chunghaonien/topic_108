@@ -1,6 +1,7 @@
 import asyncio
 import websockets
 from MemberSystem import login_system, register_system
+from Comparison import data_Comparison
 
 async def handle_connection(websocket, path):
     # 當有新的 WebSocket 連接建立時，這個函數將被呼叫
@@ -18,8 +19,19 @@ async def handle_connection(websocket, path):
             if data_list[0] == 'login':
                 response = login_system.login(data_list[1], data_list[2])
             elif data_list[0] == 'register':
-                print(data_list)
                 response = str(register_system.register(data_list[1], data_list[2], data_list[3]))
+            elif data_list[0] == 'xpath':
+                data_list.pop(0)
+
+                dou_data = []
+                dou_data.append(data_list)
+
+                # 呼叫 data_Comparison.data_process 並將結果傳給 response
+                cleaned_data = [item.replace('"[', "").replace('"]', "").strip() for item in dou_data[0]]
+
+                result = data_Comparison.data_process(cleaned_data)
+                # print(result)
+                response = str(result)
 
             await websocket.send(response)
         except websockets.exceptions.ConnectionClosedError:
@@ -34,4 +46,3 @@ start_server = websockets.serve(handle_connection, "140.131.114.149", 80)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
-

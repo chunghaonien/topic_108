@@ -17,7 +17,7 @@ def register(account, password, username):
         db.commit()
 
 
-        return True
+        return "True"
     except:
 
-        return False
+        return "False"

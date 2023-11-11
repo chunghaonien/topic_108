@@ -11,7 +11,8 @@ class Communicate(QObject):
     RegisterSignal = pyqtSignal(str, str, str)
     LoginSignal = pyqtSignal(str, str)
 
-    # 註冊畫面
+# //////////////////////////////////////////////////註冊///////////////////////////////////////////////////
+# 註冊畫面
 class RegisterPage(QDialog):
     def __init__(self, loginDialog, communicator):
         super().__init__()
@@ -64,7 +65,7 @@ class RegisterPage(QDialog):
         yes_button.setFixedSize(80, 30)
         yes_button.clicked.connect(self.onRegisterButtonClicked)  
 
-        # 將兩個按鈕放入水平佈局中
+        # 將按鈕放入水平佈局中
         buttons_layout.addWidget(yes_button)
         buttons_layout.addStretch(1)
 
@@ -97,13 +98,14 @@ class RegisterPage(QDialog):
                 register_success_popup = Register_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
                 register_success_popup.exec()
             else:
-                register_success_popup = Register_no(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
+                register_success_popup = Register_no(self, self.communicator, self.account_textbox, self.password_textbox, self.confirm_password_textbox, self.username_textbox)
                 register_success_popup.exec()
 
+# 判定密碼是否相同畫面
 class Register_confirm_password(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username_textbox):
         super().__init__()
-        self.registerPage = RegisterPage
+        self.loginDialog = loginDialog
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.communicator = communicator
         self.account_textbox = account_textbox
@@ -119,11 +121,11 @@ class Register_confirm_password(QDialog):
         log_layout.addWidget(self.log_label)
 
         buttons_layout = QHBoxLayout()
-        login_button = QPushButton('確認', self)
-        login_button.setFixedSize(80, 30)
-        login_button.clicked.connect(self.onRegisterButtonClicked_password)
+        confirm_button = QPushButton('確認', self)
+        confirm_button.setFixedSize(80, 30)
+        confirm_button.clicked.connect(self.onRegisterButtonClicked_password)
         buttons_layout.addStretch(1)
-        buttons_layout.addWidget(login_button)
+        buttons_layout.addWidget(confirm_button)
 
         layout.addLayout(log_layout)
         layout.addLayout(buttons_layout)
@@ -133,13 +135,12 @@ class Register_confirm_password(QDialog):
         
         self.setGeometry(500, 100, 200, 100)
         self.setWindowTitle('密碼不相同')
-        self.show()
 
     def onRegisterButtonClicked_password(self):
         self.close()
-        self.registerPage.exec()
+        self.loginDialog.show()
 
-            
+# 註冊成功畫面          
 class Register_yes(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username_textbox):
         super().__init__()
@@ -176,18 +177,21 @@ class Register_yes(QDialog):
         self.show()
 
     def onRegisterButtonClicked_yes(self):
-        self.close()
-        self.loginDialog.show()
+        QApplication.closeAllWindows()
+        login_dialog.show()
+        
 
-# 登入失敗畫面
+# 註冊失敗畫面
 class Register_no(QDialog):
-    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username_textbox):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, confirm_password_textbox, username_textbox):
         super().__init__()
+        self.loginDialog = loginDialog
         self.registerPage = RegisterPage
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.communicator = communicator
         self.account_textbox = account_textbox
         self.password_textbox = password_textbox
+        self.confirm_password_textbox = confirm_password_textbox
         self.username_textbox = username_textbox
         self.initUI()
 
@@ -216,8 +220,14 @@ class Register_no(QDialog):
         self.show()
 
     def onRegisterButtonClicked_no(self):
+        self.account_textbox.setText('')
+        self.password_textbox.setText('')
+        self.confirm_password_textbox.setText('')
+        self.username_textbox.setText('')
         self.close()
-        self.registerPage.show()
+
+
+# /////////////////////////////////////////////////登入////////////////////////////////////////////////////////
 
 # 初始登入畫面
 class LoginDialog(QDialog):
@@ -285,13 +295,20 @@ class LoginDialog(QDialog):
         decoded2_response = response.stdout.decode()
         self.get_login_state = decoded2_response
 
+        if account =="" or password =="":
+            login_success_popup = login_password(self, self.communicator, self.account_textbox, self.password_textbox)
+            login_success_popup.exec()
+            return
+        
         if self.get_login_state[0:4] == "True":
             login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox)
             login_success_popup.exec()
         else:
             login_success_popup = login_no(self, self.communicator, self.account_textbox, self.password_textbox)
             login_success_popup.exec()
+
 #//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 # 登入成功畫面
 class login_yes(QDialog):
@@ -334,6 +351,44 @@ class login_yes(QDialog):
         subprocess.Popen(["python", os.path.join(self.script_dir, "整合.py")])
 
 # 登入失敗畫面
+class login_password(QDialog):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
+        super().__init__()
+        self.loginDialog = loginDialog
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.communicator = communicator
+        self.account_textbox = account_textbox
+        self.password_textbox = password_textbox
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        log_layout = QVBoxLayout()
+        self.log_label = QLabel('請輸入帳號密碼', self)
+        log_layout.addWidget(self.log_label)
+
+        buttons_layout = QHBoxLayout()
+        login_button = QPushButton('確認', self)
+        login_button.setFixedSize(80, 30)
+        login_button.clicked.connect(self.onLoginButtonClicked)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(login_button)
+
+        layout.addLayout(log_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(500, 100, 200, 100)
+        self.setWindowTitle('請輸入帳號密碼')
+        self.show()
+
+    def onLoginButtonClicked(self):
+        self.close()
+        self.loginDialog.show()
+
 class login_no(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
         super().__init__()
@@ -379,4 +434,3 @@ if __name__ == '__main__':
 
 
     app.exec()
-

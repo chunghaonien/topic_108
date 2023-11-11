@@ -11,6 +11,10 @@ from datetime import datetime
 import threading
 import time
 from PyQt6 import QtCore
+import subprocess
+import os
+import re
+
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -168,7 +172,9 @@ class WebBrowserWindow(QMainWindow):
         self.drivers = None
         self.selected_xpath = None
         self.scraping_in_progress = False
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.init_ui()
+        self.selected_xpath = []
 
     def init_ui(self):
         # 設置窗口標題和圖示
@@ -188,7 +194,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建 Web 瀏覽器視窗
         self.browser = QWebEngineView()
-        self.browser.setUrl(QUrl('https://www.google.com'))
+        self.browser.setUrl(QUrl('https://www.ptt.cc/bbs/Gossiping/index.html'))
         self.setCentralWidget(self.browser)
 
         # 設置 URL 地址欄
@@ -214,8 +220,8 @@ class WebBrowserWindow(QMainWindow):
         self.record_highlight_button.clicked.connect(self.show_element_info)
         self.record_highlight_button.setFixedSize(80, 30)
 
-        self.scraping_button = QPushButton("爬蟲", self)
-        self.scraping_button.clicked.connect(self.scrape_data)  # 設定按鈕點擊事件處理函數
+        self.scraping_button = QPushButton("資料傳送", self)
+        self.scraping_button.clicked.connect(self.send_xpath_to_server)  # 設定按鈕點擊事件處理函數
         self.scraping_button.setFixedSize(80, 30)
 
         # 創建返回按鈕
@@ -302,11 +308,10 @@ class WebBrowserWindow(QMainWindow):
             var element = window.getSelection().anchorNode.parentElement;
             var path = getPathTo(element);
             
-            '(' + selectedText + ',' + path + ')';
+            selectedText + ' , {' + path + '}';
             '''
             self.browser.page().runJavaScript(js_code, self.handle_js_call)
             
-    # 處理 JavaScript 呼叫並將反白內容存入事件追蹤器
     @pyqtSlot(str)
     def handle_js_call(self, result):
         if self.main_window.event_log:
@@ -314,40 +319,53 @@ class WebBrowserWindow(QMainWindow):
             event_info = f"反白內容: {result}"
             self.main_window.event_log.append(event_info)
             self.main_window.append_action(event_info)
+
+            data = re.search(r'\{(.+?)\}', result)
+            extracted_content = data.group(1)
             # 只顯示 XPATH 路徑
-            xpath = result.split(',')[1][:-1]
-            self.selected_xpath = xpath
+            self.selected_xpath.append(extracted_content)
+
+    # 添加一個新方法，用於將所有抓取到的內容一次性傳送
+    def send_xpath_to_server(self):
+        # 將 self.selected_xpath 轉換為字符串列表
+        xpath_list = [str(xpath) for xpath in self.selected_xpath]
+
+        response = subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_Xpath.py'), str(xpath_list)], stdout=subprocess.PIPE)
+        print(response.stdout)
+
+
+
 
     # 執行爬蟲操作
-    def scrape_data(self):
-        if self.scraping_in_progress:
-            return  # 如果已經有爬蟲操作在運行，則不執行新的操作
+    # def scrape_data(self):
+    #     if self.scraping_in_progress:
+    #         return  # 如果已經有爬蟲操作在運行，則不執行新的操作
 
-        self.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
+    #     self.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
 
-        self.scraping_button.setEnabled(False)
-        self.scraping_button.setText("正在爬蟲...")
-        self.results = []  # 儲存爬蟲結果的列表
+    #     self.scraping_button.setEnabled(False)
+    #     self.scraping_button.setText("正在爬蟲...")
+    #     self.results = []  # 儲存爬蟲結果的列表
 
-        def scrape_in_thread():
-            drivers = webdriver.Chrome()
-            drivers.get(self.browser.url().toString())
-            eles = drivers.find_elements(By.XPATH, self.selected_xpath)
-            self.results = [ele.text for ele in eles]
-            print(f"爬蟲結果: {self.results}")
-            drivers.quit()
+    #     def scrape_in_thread():
+    #         drivers = webdriver.Chrome()
+    #         drivers.get(self.browser.url().toString())
+    #         eles = drivers.find_elements(By.XPATH, self.selected_xpath)
+    #         self.results = [ele.text for ele in eles]
+    #         print(f"爬蟲結果: {self.results}")
+    #         drivers.quit()
 
-            # 爬蟲完成後，使用信號更新 UI
-            self.scraping_done_signal.emit()
+    #         # 爬蟲完成後，使用信號更新 UI
+    #         self.scraping_done_signal.emit()
 
-            self.scraping_button.setText("爬蟲")  # 恢復按鈕文字
-            self.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
+    #         self.scraping_button.setText("爬蟲")  # 恢復按鈕文字
+    #         self.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
 
-            self.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
+    #         self.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
 
-        # 在單獨的線程中執行爬蟲操作
-        self.scraping_thread = threading.Thread(target=scrape_in_thread)
-        self.scraping_thread.start()
+    #     # 在單獨的線程中執行爬蟲操作
+    #     self.scraping_thread = threading.Thread(target=scrape_in_thread)
+    #     self.scraping_thread.start()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

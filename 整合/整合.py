@@ -13,6 +13,7 @@ import time
 from PyQt6 import QtCore
 import subprocess
 import os
+import re
 
 
 class MainWindow(QWidget):
@@ -193,7 +194,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建 Web 瀏覽器視窗
         self.browser = QWebEngineView()
-        self.browser.setUrl(QUrl('https://www.google.com'))
+        self.browser.setUrl(QUrl('https://www.ptt.cc/bbs/Gossiping/index.html'))
         self.setCentralWidget(self.browser)
 
         # 設置 URL 地址欄
@@ -307,7 +308,7 @@ class WebBrowserWindow(QMainWindow):
             var element = window.getSelection().anchorNode.parentElement;
             var path = getPathTo(element);
             
-            '(' + selectedText + ',' + path + ')';
+            selectedText + ' , {' + path + '}';
             '''
             self.browser.page().runJavaScript(js_code, self.handle_js_call)
             
@@ -318,9 +319,11 @@ class WebBrowserWindow(QMainWindow):
             event_info = f"反白內容: {result}"
             self.main_window.event_log.append(event_info)
             self.main_window.append_action(event_info)
+
+            data = re.search(r'\{(.+?)\}', result)
+            extracted_content = data.group(1)
             # 只顯示 XPATH 路徑
-            xpath = result.split(',')[1][:-1]
-            self.selected_xpath.append(xpath)
+            self.selected_xpath.append(extracted_content)
 
     # 添加一個新方法，用於將所有抓取到的內容一次性傳送
     def send_xpath_to_server(self):

@@ -1,6 +1,6 @@
 def compare_and_display(data):
     # Step 1: 將取得的資料切割開來
-    data_list = data.split(',')
+    data_list = eval(data)
 
     # Step 2: 將每筆資料分組，進行比較並儲存相異部分
     differences = []
@@ -17,13 +17,7 @@ def compare_and_display(data):
     print(result)
 
 # 資料範例
-data = [
-    'html[1]/body[1]/div[1]/div[6]/div[1]',
-    'html[1]/body[1]/div[1]/div[6]/div[3]',
-    'html[1]/body[1]/div[1]/div[6]/div[3]',
-    'html[1]/body[1]/div[1]/div[6]/div[4]',
-    'html[1]/body[1]/div[1]/div[6]/div[1]',
-]
+data = ["['html[1]/body[1]/div[1]/div[1]/p[1]'", "'html[1]/body[1]/div[1]/div[1]/p[2]']"]
 
 # 將資料合併成一個字串
 data_str = ','.join(data)

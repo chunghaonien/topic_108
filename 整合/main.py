@@ -292,7 +292,7 @@ class LoginDialog(QDialog):
         password = self.password_textbox.text()
 
         response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
-        decoded2_response = response.stdout.decode()
+        decoded2_response = response.stdout.decode('latin-1')
         self.get_login_state = decoded2_response
 
         if account =="" or password =="":

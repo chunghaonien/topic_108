@@ -194,7 +194,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建 Web 瀏覽器視窗
         self.browser = QWebEngineView()
-        self.browser.setUrl(QUrl('https://www.ptt.cc/bbs/Gossiping/index.html'))
+        self.browser.setUrl(QUrl('https://www.google.com.tw'))
         self.setCentralWidget(self.browser)
 
         # 設置 URL 地址欄

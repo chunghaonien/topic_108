@@ -233,13 +233,23 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建查詢資料按鈕
         self.serch_button = QPushButton("查詢資料", self)
-        self.serch_button.clicked.connect(self.browser.back)
+        # self.serch_button.clicked.connect(self.browser.back)  #還沒好
         self.serch_button.setFixedSize(80, 30)
 
-        # 創建查詢資料按鈕
+        # 創建開始爬蟲按鈕
         self.scraping_button = QPushButton("開始爬蟲", self)
-        self.scraping_button.clicked.connect(self.scrape_data)
+        # self.scraping_button.clicked.connect(self.scrape_data)  #還沒好
         self.scraping_button.setFixedSize(80, 30)
+
+        # 創建登出按鈕
+        self.logout_button = QPushButton("登出", self)
+        # self.logout_button.clicked.connect(self.logout_data)  #還沒好
+        self.logout_button.setFixedSize(80, 30)
+
+        # 使用者名稱      還沒好
+    # ////////////////////////////////////////////////////////////
+        self.account_label = QLabel('帳號:', self)
+    # ////////////////////////////////////////////////////////////
 
         # 創建一個水平佈局並將按鈕添加到其中
         button_layout = QHBoxLayout()
@@ -249,7 +259,10 @@ class WebBrowserWindow(QMainWindow):
         button_layout.addWidget(self.scraping_button)
         button_layout.addWidget(self.serch_button)
         button_layout.addStretch(1) #將按鈕推到左邊
-
+        
+        button_layout.addWidget(self.account_label)
+        button_layout.addWidget(self.logout_button)
+        
         # 主佈局包含其他小部件和水平佈局
         layout = QVBoxLayout()
         layout.addWidget(self.urlbar)

@@ -237,6 +237,7 @@ class LoginDialog(QDialog):
         self.script_dir = os.path.dirname(os.path.realpath(__file__))  # 在這裡定義 script_dir
         self.get_login_state = ""
         self.initUI()
+        self.username = ""
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -286,46 +287,51 @@ class LoginDialog(QDialog):
     def open_register_page(self):
         register_page = RegisterPage(self, self.communicator)
         register_page.exec()
-#//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    #有可能有亂碼
     def onLoginButtonClicked(self):
         account = self.account_textbox.text()
         password = self.password_textbox.text()
-
+        
         response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
-        decoded2_response = response.stdout.decode('latin-1')
-        self.get_login_state = decoded2_response
+        try:
+            decoded2_response = response.stdout.decode('gbk')
+        except UnicodeDecodeError:
+            decoded2_response = response.stdout.decode('utf-8', errors='replace')
 
+        self.get_login_state = decoded2_response
+        print(self.get_login_state)
+        
         if account =="" or password =="":
             login_success_popup = login_password(self, self.communicator, self.account_textbox, self.password_textbox)
             login_success_popup.exec()
             return
         
         if self.get_login_state[0:4] == "True":
-            login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox)
+            self.username = self.get_login_state[5:]
+            login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username)
             login_success_popup.exec()
         else:
             login_success_popup = login_no(self, self.communicator, self.account_textbox, self.password_textbox)
             login_success_popup.exec()
 
-#//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 # 登入成功畫面
 class login_yes(QDialog):
-    def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username):
         super().__init__()
         self.loginDialog = loginDialog
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.communicator = communicator
         self.account_textbox = account_textbox
         self.password_textbox = password_textbox
+        self.username = username
         self.initUI()
 
     def initUI(self):
         layout = QVBoxLayout()
 
         log_layout = QVBoxLayout()
-        self.log_label = QLabel('登入成功', self)
+        self.log_label = QLabel(f'登入成功，用戶名:{self.username}', self)
         log_layout.addWidget(self.log_label)
 
         buttons_layout = QHBoxLayout()
@@ -343,12 +349,13 @@ class login_yes(QDialog):
         
         self.setGeometry(500, 100, 200, 100)
         self.setWindowTitle('登入成功')
+        print(self.username)
         self.show()
 
     def onLoginButtonClicked_yes(self):
         self.close()
         QApplication.closeAllWindows()    
-        subprocess.Popen(["python", os.path.join(self.script_dir, "整合.py")])
+        subprocess.Popen(["python", os.path.join(self.script_dir, "整合.py"), self.username])
 
 # 登入失敗畫面
 class login_password(QDialog):

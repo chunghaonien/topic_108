@@ -238,7 +238,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建開始爬蟲按鈕
         self.scraping_button = QPushButton("開始爬蟲", self)
-        # self.scraping_button.clicked.connect(self.scrape_data)  #還沒好
+        self.scraping_button.clicked.connect(self.scrape_data)  
         self.scraping_button.setFixedSize(80, 30)
 
         # 創建登出按鈕
@@ -432,7 +432,7 @@ if __name__ == '__main__':
 
     window = QMainWindow()
     window.setCentralWidget(splitter)
-    window.setWindowTitle('Integrated Window')
+    window.setWindowTitle('Icrawler')
     window.showMaximized()  # 最大化顯示
     web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
 

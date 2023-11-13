@@ -6,6 +6,7 @@ from PyQt6.QtCore import pyqtSlot, QDateTime, QTimer, QUrl
 from PyQt6.QtCore import Qt
 from selenium.webdriver.common.by import By
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from pynput import mouse, keyboard
 from datetime import datetime
 import threading
@@ -171,10 +172,11 @@ class WebBrowserWindow(QMainWindow):
         self.main_window = main_window
         self.drivers = None
         self.selected_xpath = None
+        self.selected_xpath = []
+        self.xpath = None
         self.scraping_in_progress = False
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.init_ui()
-        self.selected_xpath = []
 
     def init_ui(self):
         # 設置窗口標題和圖示
@@ -220,20 +222,32 @@ class WebBrowserWindow(QMainWindow):
         self.record_highlight_button.clicked.connect(self.show_element_info)
         self.record_highlight_button.setFixedSize(80, 30)
 
-        self.scraping_button = QPushButton("資料傳送", self)
-        self.scraping_button.clicked.connect(self.send_xpath_to_server)  # 設定按鈕點擊事件處理函數
-        self.scraping_button.setFixedSize(80, 30)
+        self.send_xpath_button = QPushButton("資料傳送", self)
+        self.send_xpath_button.clicked.connect(self.send_xpath_to_server)  # 設定按鈕點擊事件處理函數
+        self.send_xpath_button.setFixedSize(80, 30)
 
         # 創建返回按鈕
         self.back_button = QPushButton("返回", self)
         self.back_button.clicked.connect(self.browser.back)
         self.back_button.setFixedSize(80, 30)
 
+        # 創建查詢資料按鈕
+        self.serch_button = QPushButton("查詢資料", self)
+        self.serch_button.clicked.connect(self.browser.back)
+        self.serch_button.setFixedSize(80, 30)
+
+        # 創建查詢資料按鈕
+        self.scraping_button = QPushButton("開始爬蟲", self)
+        self.scraping_button.clicked.connect(self.scrape_data)
+        self.scraping_button.setFixedSize(80, 30)
+
         # 創建一個水平佈局並將按鈕添加到其中
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.back_button)
         button_layout.addWidget(self.record_highlight_button)
+        button_layout.addWidget(self.send_xpath_button)
         button_layout.addWidget(self.scraping_button)
+        button_layout.addWidget(self.serch_button)
         button_layout.addStretch(1) #將按鈕推到左邊
 
         # 主佈局包含其他小部件和水平佈局
@@ -329,43 +343,66 @@ class WebBrowserWindow(QMainWindow):
     def send_xpath_to_server(self):
         # 將 self.selected_xpath 轉換為字符串列表
         xpath_list = [str(xpath) for xpath in self.selected_xpath]
-
         response = subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_Xpath.py'), str(xpath_list)], stdout=subprocess.PIPE)
-        print(response.stdout)
-
-
-
+        stdout_str = response.stdout.decode('utf-8')
+        self.xpath = stdout_str.split('+')[0][:-1]
+        self.selected_xpath = []
 
     # 執行爬蟲操作
-    # def scrape_data(self):
-    #     if self.scraping_in_progress:
-    #         return  # 如果已經有爬蟲操作在運行，則不執行新的操作
+    def scrape_data(self):
+        if self.scraping_in_progress:
+            return  # 如果已經有爬蟲操作在運行，則不執行新的操作
 
-    #     self.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
+        self.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
 
-    #     self.scraping_button.setEnabled(False)
-    #     self.scraping_button.setText("正在爬蟲...")
-    #     self.results = []  # 儲存爬蟲結果的列表
+        self.scraping_button.setEnabled(False)
+        self.scraping_button.setText("正在爬蟲...")
+        self.results = []  # 儲存爬蟲結果的列表
 
-    #     def scrape_in_thread():
-    #         drivers = webdriver.Chrome()
-    #         drivers.get(self.browser.url().toString())
-    #         eles = drivers.find_elements(By.XPATH, self.selected_xpath)
-    #         self.results = [ele.text for ele in eles]
-    #         print(f"爬蟲結果: {self.results}")
-    #         drivers.quit()
+        def scrape_in_thread():
+            drivers = webdriver.Chrome()
+            drivers.get(self.browser.url().toString())
+            # eles = drivers.find_elements(By.XPATH, self.get_xpath)
+            # self.results = [ele.text for ele in eles]
+            # print(f"爬蟲結果: {self.results}")
+            # drivers.quit()
 
-    #         # 爬蟲完成後，使用信號更新 UI
-    #         self.scraping_done_signal.emit()
+            # 初始化迴圈索引
+            n = 1
 
-    #         self.scraping_button.setText("爬蟲")  # 恢復按鈕文字
-    #         self.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
+            while True:
+                # 構造標題的 XPATH
+                xpath = self.xpath + f"[{n}]"
 
-    #         self.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
+                try:
+                    # 使用 find_element_by_xpath 找到標題元素
+                    title_element = drivers.find_element(By.XPATH, xpath)
 
-    #     # 在單獨的線程中執行爬蟲操作
-    #     self.scraping_thread = threading.Thread(target=scrape_in_thread)
-    #     self.scraping_thread.start()
+                    # 獲取標題文本
+                    title_text = title_element.text
+
+                    # 顯示標題
+                    print(f"爬蟲結果 {n}: {title_text}")
+
+                    # 增加迴圈索引
+                    n += 1
+                    xpath = None
+
+                except NoSuchElementException:
+                    # 找不到元素時退出迴圈
+                    break
+
+            # 爬蟲完成後，使用信號更新 UI
+            self.scraping_done_signal.emit()
+
+            self.scraping_button.setText("爬蟲")  # 恢復按鈕文字
+            self.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
+
+            self.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
+
+        # 在單獨的線程中執行爬蟲操作
+        self.scraping_thread = threading.Thread(target=scrape_in_thread)
+        self.scraping_thread.start()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -384,6 +421,6 @@ if __name__ == '__main__':
     window.setCentralWidget(splitter)
     window.setWindowTitle('Integrated Window')
     window.showMaximized()  # 最大化顯示
-    # web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
+    web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
 
     app.exec()

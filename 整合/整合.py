@@ -226,6 +226,8 @@ class WebBrowserWindow(QMainWindow):
         self.send_xpath_button = QPushButton("資料傳送", self)
         self.send_xpath_button.clicked.connect(self.send_xpath_to_server)  # 設定按鈕點擊事件處理函數
         self.send_xpath_button.setFixedSize(80, 30)
+        self.send_xpath_button.setEnabled(False)  # 初始狀態設為不可用
+        self.send_xpath_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
 
         # 創建返回按鈕
         self.back_button = QPushButton("返回", self)
@@ -236,11 +238,15 @@ class WebBrowserWindow(QMainWindow):
         self.serch_button = QPushButton("查詢資料", self)
         # self.serch_button.clicked.connect(self.browser.back)  #還沒好
         self.serch_button.setFixedSize(80, 30)
+        self.serch_button.setEnabled(False)  # 初始狀態設為不可用
+        self.serch_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
 
         # 創建開始爬蟲按鈕
         self.scraping_button = QPushButton("開始爬蟲", self)
         self.scraping_button.clicked.connect(self.scrape_data)  
         self.scraping_button.setFixedSize(80, 30)
+        self.scraping_button.setEnabled(False)  # 初始狀態設為不可用
+        self.scraping_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
 
         # 創建登出按鈕
         self.logout_button = QPushButton("登出", self)
@@ -340,6 +346,15 @@ class WebBrowserWindow(QMainWindow):
             '''
             self.browser.page().runJavaScript(js_code, self.handle_js_call)
             
+            # 在反白按鈕觸發後，將查詢資料和開始爬蟲按鈕設置為可用
+            self.send_xpath_button.setEnabled(True)
+            self.send_xpath_button.setStyleSheet("")    # 移除樣式，恢復預設外觀
+            self.serch_button.setEnabled(True)
+            self.serch_button.setStyleSheet("")
+            self.scraping_button.setEnabled(True)
+            self.scraping_button.setStyleSheet("")
+
+
     @pyqtSlot(str)
     def handle_js_call(self, result):
         if self.main_window.event_log:

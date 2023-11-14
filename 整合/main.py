@@ -357,7 +357,7 @@ class login_yes(QDialog):
         QApplication.closeAllWindows()    
         subprocess.Popen(["python", os.path.join(self.script_dir, "整合.py"), self.username])
 
-# 登入失敗畫面
+# 沒輸入帳號密碼畫面
 class login_password(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
         super().__init__()
@@ -396,6 +396,7 @@ class login_password(QDialog):
         self.close()
         self.loginDialog.show()
 
+# 登入失敗畫面
 class login_no(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
         super().__init__()

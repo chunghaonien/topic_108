@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTextEdit, QLineEdit, QPushButton, QHBoxLayout, QLabel, QFileDialog, QSplitter
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTextEdit, QLineEdit, QPushButton, QHBoxLayout, QLabel, QFileDialog, QSplitter, QDialog
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSlot, QDateTime, QTimer, QUrl
 from PyQt6.QtCore import Qt
@@ -16,6 +16,44 @@ import subprocess
 import os
 import re
 
+#////////////////////////////////////////////////////////////////////////////
+# 爬蟲需求畫面
+class scraping(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        scraping_layout = QVBoxLayout()
+        self.scraping_label = QLabel('需要爬幾頁:', self)
+        self.scraping_textbox = QLineEdit(self)
+        scraping_layout.addWidget(self.scraping_label)
+        scraping_layout.addWidget(self.scraping_textbox)
+
+        buttons_layout = QHBoxLayout()
+        scraping_button = QPushButton('確認', self)
+        scraping_button.setFixedSize(80, 30)
+        scraping_button.clicked.connect(self.scrapingButtonClicked_yes)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(scraping_button)
+
+        layout.addLayout(scraping_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(500, 100, 200, 100)
+        self.setWindowTitle('爬取需求畫面')
+        self.show()
+
+    def scrapingButtonClicked_yes(self):
+        QApplication.closeAllWindows()
+        WebBrowserWindow.show()
+#////////////////////////////////////////////////////////////////////////////
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -312,11 +350,11 @@ class WebBrowserWindow(QMainWindow):
         if selected_text:
             self.main_window.set_selected_text_to_record(selected_text)
 
+    # 登出
     def logout(self):
         self.close()
         QApplication.closeAllWindows()    
         subprocess.Popen(["python", os.path.join(self.script_dir, "main.py")])
-
 
     # 顯示反白文本的元素資訊
     def show_element_info(self):
@@ -383,8 +421,13 @@ class WebBrowserWindow(QMainWindow):
         self.xpath = stdout_str.split('+')[0][:-1]
         self.selected_xpath = []
 
+#////////////////////////////////////////////////////////////////////////////
     # 執行爬蟲操作
     def scrape_data(self):
+        scrape_page = scraping(self)
+        scrape_page.exec()
+
+    def scrapingButtonClicked_yes(self):
         if self.scraping_in_progress:
             return  # 如果已經有爬蟲操作在運行，則不執行新的操作
 
@@ -438,6 +481,7 @@ class WebBrowserWindow(QMainWindow):
         # 在單獨的線程中執行爬蟲操作
         self.scraping_thread = threading.Thread(target=scrape_in_thread)
         self.scraping_thread.start()
+#////////////////////////////////////////////////////////////////////////////
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

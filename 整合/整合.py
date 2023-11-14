@@ -250,7 +250,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建登出按鈕
         self.logout_button = QPushButton("登出", self)
-        # self.logout_button.clicked.connect(self.logout_data)  #還沒好
+        self.logout_button.clicked.connect(self.logout) 
         self.logout_button.setFixedSize(80, 30)
 
         # 使用者名稱      還沒好
@@ -312,6 +312,12 @@ class WebBrowserWindow(QMainWindow):
         if selected_text:
             self.main_window.set_selected_text_to_record(selected_text)
 
+    def logout(self):
+        self.close()
+        QApplication.closeAllWindows()    
+        subprocess.Popen(["python", os.path.join(self.script_dir, "main.py")])
+
+
     # 顯示反白文本的元素資訊
     def show_element_info(self):
         selected_text = self.main_window.selected_text_to_record
@@ -354,7 +360,7 @@ class WebBrowserWindow(QMainWindow):
             self.scraping_button.setEnabled(True)
             self.scraping_button.setStyleSheet("")
 
-
+    
     @pyqtSlot(str)
     def handle_js_call(self, result):
         if self.main_window.event_log:

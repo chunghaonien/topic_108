@@ -293,11 +293,23 @@ class LoginDialog(QDialog):
         account = self.account_textbox.text()
         password = self.password_textbox.text()
         
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
         try:
             decoded2_response = response.stdout.decode('gbk')
         except UnicodeDecodeError:
             decoded2_response = response.stdout.decode('utf-8', errors='replace')
+<<<<<<< Updated upstream
+=======
+
+        self.get_login_state = decoded2_response
+        print(self.get_login_state)
+        
+
+>>>>>>> Stashed changes
 
         self.get_login_state = decoded2_response
         print(self.get_login_state)

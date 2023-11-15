@@ -22,8 +22,6 @@ class MainWindow(QWidget):
         self.event_log = []
         self.initUI()
         
-        
-
     def initUI(self):
         self.setGeometry(100, 100, 400, 300)
         self.setWindowTitle('使用者動作')
@@ -353,7 +351,11 @@ class WebBrowserWindow(QMainWindow):
 
         # 使用者名稱      還沒好
     # ////////////////////////////////////////////////////////////
+<<<<<<< Updated upstream
         self.account_label = QLabel(f'用戶名:{username}', self)
+=======
+        self.account_label = QLabel(f'使用者 : {username}', self)
+>>>>>>> Stashed changes
     # ////////////////////////////////////////////////////////////
 
         # 創建一個水平佈局並將按鈕添加到其中
@@ -499,7 +501,6 @@ if __name__ == '__main__':
 
     # 在這裡改用 input() 來取得使用者輸入
     username = sys.stdin.read().strip()
-    print(f"使用者名稱: {username}")
 
     main_window = MainWindow()
     web_browser_window = WebBrowserWindow(main_window, username)
@@ -517,4 +518,3 @@ if __name__ == '__main__':
     web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
 
     app.exec()
-

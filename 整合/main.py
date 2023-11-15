@@ -452,5 +452,4 @@ if __name__ == '__main__':
     communicator = Communicate()
     login_dialog = LoginDialog(communicator)  # 將 communicator 傳遞給 LoginDialog 的構造函式
 
-
     app.exec()

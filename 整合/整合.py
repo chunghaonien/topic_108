@@ -326,16 +326,14 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建查詢資料按鈕
         self.serch_button = QPushButton("查詢資料", self)
-        # self.serch_button.clicked.connect(self.browser.back)  #還沒好
+        self.serch_button.clicked.connect(self.open_table)  #還沒好
         self.serch_button.setFixedSize(80, 30)
         
-# /////////////////////////////////////////////////////////////
         self.button_xpath = QPushButton("按鈕傳送", self)
         # self.button_xpath.clicked.connect(self.button_xpath)  
         self.button_xpath.setFixedSize(80, 30)
         self.button_xpath.setEnabled(False)  # 初始狀態設為不可用
         self.button_xpath.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
-# //////////////////////////////////////////////////////////////
 
         # 創建開始爬蟲按鈕
         self.scraping_button = QPushButton("開始爬蟲", self)
@@ -349,14 +347,8 @@ class WebBrowserWindow(QMainWindow):
         self.logout_button.clicked.connect(self.logout) 
         self.logout_button.setFixedSize(80, 30)
 
-        # 使用者名稱      還沒好
-    # ////////////////////////////////////////////////////////////
-<<<<<<< Updated upstream
+        # 用戶名標籤
         self.account_label = QLabel(f'用戶名:{username}', self)
-=======
-        self.account_label = QLabel(f'使用者 : {username}', self)
->>>>>>> Stashed changes
-    # ////////////////////////////////////////////////////////////
 
         # 創建一個水平佈局並將按鈕添加到其中
         button_layout = QHBoxLayout()
@@ -366,9 +358,9 @@ class WebBrowserWindow(QMainWindow):
         button_layout.addWidget(self.button_xpath)
         button_layout.addWidget(self.scraping_button)
         button_layout.addStretch(1) #將按鈕推到左邊
-        
-        button_layout.addWidget(self.serch_button)
+
         button_layout.addWidget(self.account_label)
+        button_layout.addWidget(self.serch_button)
         button_layout.addWidget(self.logout_button)
         
         # 主佈局包含其他小部件和水平佈局
@@ -387,6 +379,12 @@ class WebBrowserWindow(QMainWindow):
         if q.scheme() == '':
             q.setScheme('http')
         self.browser.setUrl(q)
+
+    def open_table(self):
+        print(1)
+        self.close()
+        QApplication.closeAllWindows()
+        subprocess.Popen(["python", os.path.join(self.script_dir, "table.py")])
 
     # 更新 URL 地址欄的文字
     def renew_urlbar(self, q):

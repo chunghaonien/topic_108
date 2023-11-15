@@ -314,6 +314,7 @@ class WebBrowserWindow(QMainWindow):
         self.record_highlight_button.clicked.connect(self.show_element_info)
         self.record_highlight_button.setFixedSize(80, 30)
 
+        # 創建傳送資料按鈕
         self.send_xpath_button = QPushButton("資料傳送", self)
         self.send_xpath_button.clicked.connect(self.send_xpath_to_server)  # 設定按鈕點擊事件處理函數
         self.send_xpath_button.setFixedSize(80, 30)
@@ -329,8 +330,14 @@ class WebBrowserWindow(QMainWindow):
         self.serch_button = QPushButton("查詢資料", self)
         # self.serch_button.clicked.connect(self.browser.back)  #還沒好
         self.serch_button.setFixedSize(80, 30)
-        self.serch_button.setEnabled(False)  # 初始狀態設為不可用
-        self.serch_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
+        
+# /////////////////////////////////////////////////////////////
+        self.button_xpath = QPushButton("按鈕傳送", self)
+        # self.button_xpath.clicked.connect(self.button_xpath)  
+        self.button_xpath.setFixedSize(80, 30)
+        self.button_xpath.setEnabled(False)  # 初始狀態設為不可用
+        self.button_xpath.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
+# //////////////////////////////////////////////////////////////
 
         # 創建開始爬蟲按鈕
         self.scraping_button = QPushButton("開始爬蟲", self)
@@ -346,7 +353,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 使用者名稱      還沒好
     # ////////////////////////////////////////////////////////////
-        self.account_label = QLabel(f'帳號:{username}', self)
+        self.account_label = QLabel(f'用戶名:{username}', self)
     # ////////////////////////////////////////////////////////////
 
         # 創建一個水平佈局並將按鈕添加到其中
@@ -354,10 +361,11 @@ class WebBrowserWindow(QMainWindow):
         button_layout.addWidget(self.back_button)
         button_layout.addWidget(self.record_highlight_button)
         button_layout.addWidget(self.send_xpath_button)
+        button_layout.addWidget(self.button_xpath)
         button_layout.addWidget(self.scraping_button)
-        button_layout.addWidget(self.serch_button)
         button_layout.addStretch(1) #將按鈕推到左邊
         
+        button_layout.addWidget(self.serch_button)
         button_layout.addWidget(self.account_label)
         button_layout.addWidget(self.logout_button)
         
@@ -444,14 +452,10 @@ class WebBrowserWindow(QMainWindow):
             self.browser.page().runJavaScript(js_code, self.handle_js_call)
             
             # 在反白按鈕觸發後，將查詢資料和開始爬蟲按鈕設置為可用
-            self.send_xpath_button.setEnabled(True)
+            self.send_xpath_button.setEnabled(True)     #資料傳送
             self.send_xpath_button.setStyleSheet("")    # 移除樣式，恢復預設外觀
-            self.serch_button.setEnabled(True)
-            self.serch_button.setStyleSheet("")
-            self.scraping_button.setEnabled(True)
-            self.scraping_button.setStyleSheet("")
-
-    
+            
+            
     @pyqtSlot(str)
     def handle_js_call(self, result):
         if self.main_window.event_log:
@@ -474,15 +478,22 @@ class WebBrowserWindow(QMainWindow):
         self.xpath = stdout_str.split('+')[0][:-1]
         self.selected_xpath = []
 
+        self.button_xpath.setEnabled(True)          #按鈕傳送
+        self.button_xpath.setStyleSheet("")         # 移除樣式，恢復預設外觀
+    
 #////////////////////////////////////////////////////////////////////////////
     # 執行爬蟲操作
     def scrape_data(self):
         scrape_page = scraping(self)
         scrape_page.exec()
-
-    
+        
 #////////////////////////////////////////////////////////////////////////////
+    # 按鈕傳送
+    def button_xpath(self):
 
+        self.scraping_button.setEnabled(True)       #開始爬蟲按鈕
+        self.scraping_button.setStyleSheet("")      # 移除樣式，恢復預設外觀
+# ////////////////////////////////////////////////////////////////////////////
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 

@@ -134,97 +134,7 @@ class MainWindow(QWidget):
         with open('event_log.txt', 'a') as file:
             file.write(event_info + '\n')
 
-
-# 爬蟲需求畫面
-class scraping(QDialog):
-    def __init__(self, parent=None):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        layout = QVBoxLayout()
-
-        scraping_layout = QVBoxLayout()
-        self.scraping_label = QLabel('需要爬幾頁:', self)
-        self.scraping_textbox = QLineEdit(self)
-        scraping_layout.addWidget(self.scraping_label)
-        scraping_layout.addWidget(self.scraping_textbox)
-
-        buttons_layout = QHBoxLayout()
-        scraping_button = QPushButton('確認', self)
-        scraping_button.setFixedSize(80, 30)
-        scraping_button.clicked.connect(self.scrapingButtonClicked_yes)
-        buttons_layout.addStretch(1)
-        buttons_layout.addWidget(scraping_button)
-
-        layout.addLayout(scraping_layout)
-        layout.addLayout(buttons_layout)
-        layout.addStretch()
-
-        self.setLayout(layout)
-        
-        self.setGeometry(500, 100, 200, 100)
-        self.setWindowTitle('爬取需求畫面')
-        self.show()
-#////////////////////////////////////////////////////////////////////////////////////    
-    def scrapingButtonClicked_yes(self):
-        if self.scraping_in_progress:
-            return  # 如果已經有爬蟲操作在運行，則不執行新的操作
-
-        self.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
-
-        self.scraping_button.setEnabled(False)
-        self.scraping_button.setText("正在爬蟲...")
-        self.results = []  # 儲存爬蟲結果的列表
-
-        def scrape_in_thread():
-            drivers = webdriver.Chrome()
-            drivers.get(self.browser.url().toString())
-            # eles = drivers.find_elements(By.XPATH, self.get_xpath)
-            # self.results = [ele.text for ele in eles]
-            # print(f"爬蟲結果: {self.results}")
-            # drivers.quit()
-
-            # 初始化迴圈索引
-            n = 1
-
-            while True:
-                # 構造標題的 XPATH
-                xpath = self.xpath + f"[{n}]"
-
-                try:
-                    # 使用 find_element_by_xpath 找到標題元素
-                    title_element = drivers.find_element(By.XPATH, xpath)
-
-                    # 獲取標題文本
-                    title_text = title_element.text
-
-                    # 顯示標題
-                    print(f"爬蟲結果 {n}: {title_text}")
-
-                    # 增加迴圈索引
-                    n += 1
-                    xpath = None
-
-                except NoSuchElementException:
-                    # 找不到元素時退出迴圈
-                    break
-
-            # 爬蟲完成後，使用信號更新 UI
-            self.scraping_done_signal.emit()
-
-            self.scraping_button.setText("爬蟲")  # 恢復按鈕文字
-            self.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
-
-            self.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
-
-        # 在單獨的線程中執行爬蟲操作
-        self.scraping_thread = threading.Thread(target=scrape_in_thread)
-        self.scraping_thread.start()
-
-        QApplication.closeAllWindows()
-        WebBrowserWindow.show()
-#////////////////////////////////////////////////////////////////////////////
+# /////////////////////////////////////////////////////////////////////////////////
 
 class WebBrowserWindow(QMainWindow):
     scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成
@@ -235,6 +145,7 @@ class WebBrowserWindow(QMainWindow):
         self.drivers = None
         self.selected_xpath = None
         self.selected_xpath = []
+        self.selected_button_xpath = None
         self.xpath = None
         self.scraping_in_progress = False
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -303,14 +214,14 @@ class WebBrowserWindow(QMainWindow):
         self.serch_button.setFixedSize(80, 30)
         
         self.button_xpath = QPushButton("按鈕傳送", self)
-        # self.button_xpath.clicked.connect(self.button_xpath)  
+        self.button_xpath.clicked.connect(self.send_button_xpath) 
         self.button_xpath.setFixedSize(80, 30)
         self.button_xpath.setEnabled(False)  # 初始狀態設為不可用
         self.button_xpath.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
 
         # 創建開始爬蟲按鈕
         self.scraping_button = QPushButton("開始爬蟲", self)
-        self.scraping_button.clicked.connect(self.scrape_data)  
+        self.scraping_button.clicked.connect(scraping)  
         self.scraping_button.setFixedSize(80, 30)
         self.scraping_button.setEnabled(False)  # 初始狀態設為不可用
         self.scraping_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
@@ -439,9 +350,11 @@ class WebBrowserWindow(QMainWindow):
             self.main_window.event_log.append(event_info)
             self.main_window.append_action(event_info)
 
+            # 只顯示 XPATH 路徑
+            self.selected_button_xpath = result
+
             data = re.search(r'\{(.+?)\}', result)
             extracted_content = data.group(1)
-            # 只顯示 XPATH 路徑
             self.selected_xpath.append(extracted_content)
 
     # 添加一個新方法，用於將所有抓取到的內容一次性傳送
@@ -455,25 +368,148 @@ class WebBrowserWindow(QMainWindow):
 
         self.button_xpath.setEnabled(True)          #按鈕傳送
         self.button_xpath.setStyleSheet("")         # 移除樣式，恢復預設外觀
-    
-#////////////////////////////////////////////////////////////////////////////
-    # 執行爬蟲操作
-    def scrape_data(self):
-        scrape_page = scraping(self)
-        scrape_page.exec()
-        
-#////////////////////////////////////////////////////////////////////////////
-    # 按鈕傳送
-    def button_xpath(self):
+
+        # 按鈕傳送
+    def send_button_xpath(self):
+        self.selected_button_xpath = self.selected_button_xpath.split(',')[1][2:-1]
 
         self.scraping_button.setEnabled(True)       #開始爬蟲按鈕
         self.scraping_button.setStyleSheet("")      # 移除樣式，恢復預設外觀
+        
 # ////////////////////////////////////////////////////////////////////////////
+
+# 爬蟲需求畫面
+class scraping(QDialog, WebBrowserWindow):
+    def __init__(self):
+        super().__init__()
+        WebBrowserWindow.__init__(self)
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        scraping_layout = QVBoxLayout()
+        self.scraping_label = QLabel('需要爬幾頁:', self)
+        self.scraping_textbox = QLineEdit(self)
+        scraping_layout.addWidget(self.scraping_label)
+        scraping_layout.addWidget(self.scraping_textbox)
+
+        buttons_layout = QHBoxLayout()
+        scraping_button = QPushButton('確認', self)
+        scraping_button.setFixedSize(80, 30)
+        scraping_button.clicked.connect(self.scrape_data)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(scraping_button)
+
+        layout.addLayout(scraping_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(500, 100, 200, 100)
+        self.setWindowTitle('爬取需求畫面')
+        self.show()
+
+        QApplication.closeAllWindows()
+        WebBrowserWindow.show()
+    
+    # 執行爬蟲操作
+    def scrape_data(self):
+        if self.scraping_in_progress:
+            return  # 如果已經有爬蟲操作在運行，則不執行新的操作
+
+        self.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
+
+        self.scraping_button.setEnabled(False)
+        self.scraping_button.setText("正在爬蟲...")
+        self.results = []  # 儲存爬蟲結果的列表
+
+        drivers = webdriver.Chrome()
+        drivers.get(self.browser.url().toString())
+
+        def scrape_in_thread():
+            # 初始化迴圈索引
+            n = 1
+
+            while True:
+                # 構造標題的 XPATH
+                xpath = self.xpath + f"[{n}]"
+
+                try:
+                    # 使用 find_element_by_xpath 找到標題元素
+                    title_element = drivers.find_element(By.XPATH, xpath)
+
+                    # 獲取標題文本
+                    title_text = title_element.text
+
+                    # 顯示標題
+                    print(f"爬蟲結果 {n}: {title_text}")
+
+                    # 增加迴圈索引
+                    n += 1
+                    xpath = None
+
+                except NoSuchElementException:
+                    # 找不到元素時退出迴圈
+                    break
+                # 開始重複執行爬取
+        try:
+            while True:
+                # 在單獨的線程中執行爬蟲操作
+                self.scraping_thread = threading.Thread(target=scrape_in_thread)
+                self.scraping_thread.start()
+
+                # 尋找並點擊下一頁按鈕
+                try:
+                    next_button = drivers.find_element(By.XPATH, self.selected_button_xpath)
+                    next_button.click()
+                except NoSuchElementException:
+                    # 找不到下一頁按鈕，退出迴圈
+                    break
+
+                # 模擬滾輪滑動到底部
+                self.scroll_to_bottom()
+
+                # 停一下，給頁面加載時間，可以根據實際情況調整
+                time.sleep(2)
+        except Exception as e:
+            print(f"發生錯誤：{e}")
+        finally:
+            # 關閉瀏覽器
+            drivers.quit()
+
+            # 爬蟲完成後，使用信號更新 UI
+            self.scraping_done_signal.emit()
+
+            self.scraping_button.setText("爬蟲")  # 恢復按鈕文字
+            self.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
+
+            self.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
+
+    def scroll_to_bottom(self):
+            # 使用 JavaScript 模擬滾輪滑動到底部
+        self.drivers.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)  # 等待一段時間，讓新資料加載完成
+        
+#////////////////////////////////////////////////////////////////////////////
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
+<<<<<<< HEAD
     username = sys.stdin.read().strip()
     print(username)
+=======
+    # 在這裡改用 input() 來取得使用者輸入
+<<<<<<< Updated upstream
+    username = sys.stdin.read().strip()
+=======
+    # username = sys.stdin.read().strip()
+    username = "none"
+    print(f"使用者名稱: {username}")
+>>>>>>> Stashed changes
+>>>>>>> 3485c2574ebaaeb67a28fa8e71801b49adc92c29
 
     main_window = MainWindow()
     web_browser_window = WebBrowserWindow(main_window, username)
@@ -488,6 +524,6 @@ if __name__ == '__main__':
     window.setCentralWidget(splitter)
     window.setWindowTitle('Icrawler')
     window.showMaximized()  # 最大化顯示
-    web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
+    web_browser_window.scraping_button.clicked.connect(scraping.scrape_data)
 
     app.exec()

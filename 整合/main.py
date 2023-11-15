@@ -301,7 +301,7 @@ class LoginDialog(QDialog):
         response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
         
         try:
-            decoded2_response = response.stdout.decode('utf-8')
+            decoded2_response = response.stdout.decode('gbk')
         except UnicodeDecodeError:
             decoded2_response = response.stdout.decode('utf-8', errors='replace')
 
@@ -358,10 +358,10 @@ class login_yes(QDialog):
 
         script_path = os.path.join(self.script_dir, "整合.py")
         process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate(input=self.username.encode('utf-8'))
+        stdout, stderr = process.communicate(input=self.username.encode('gbk'))
 
-        print("stdout:", stdout.decode('utf-8'))
-        print("stderr:", stderr.decode('utf-8'))
+        print("stdout:", stdout.decode('gbk'))
+        print("stderr:", stderr.decode('gbk'))
 
     # 在這裡處理子進程的輸出
 

@@ -6,6 +6,7 @@ from PyQt6.QtCore import pyqtSlot, QDateTime, QTimer, QUrl
 from PyQt6.QtCore import Qt
 from selenium.webdriver.common.by import By
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from pynput import mouse, keyboard
 from datetime import datetime
@@ -20,6 +21,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.event_log = []
+        self.scraping_dialog = None
         self.initUI()
         
     def initUI(self):
@@ -69,10 +71,18 @@ class MainWindow(QWidget):
                 if self.is_capturing and not self.start_button.isChecked():  # 按下開始記錄且沒有按下開只記錄按鈕
                     self.append_action(f"滑鼠點擊：({x}, {y})，按鍵：{button_text}")
                     self.stop_capture()  # 停止記錄
+<<<<<<< Updated upstream
             else:
                 # 如果是松開事件，不做任何處理
                 pass
 # ===============================================================================================
+=======
+                    if self.scraping_dialog:
+                        self.scraping_dialog.set_coordinates(x, y)
+            else:
+                # 如果是松開事件，不做任何處理
+                pass
+>>>>>>> Stashed changes
 
     def on_scroll(self, x, y, dx, dy):
         self.append_action(f"滾輪滾動，水平：{dx}，垂直：{dy}")
@@ -137,8 +147,6 @@ class MainWindow(QWidget):
 # /////////////////////////////////////////////////////////////////////////////////
 
 class WebBrowserWindow(QMainWindow):
-    scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成
-
     def __init__(self, main_window, username):
         super().__init__()
         self.main_window = main_window
@@ -221,7 +229,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建開始爬蟲按鈕
         self.scraping_button = QPushButton("開始爬蟲", self)
-        self.scraping_button.clicked.connect(scraping)  
+        self.scraping_button.clicked.connect(ScrapingDialog)
         self.scraping_button.setFixedSize(80, 30)
         self.scraping_button.setEnabled(False)  # 初始狀態設為不可用
         self.scraping_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
@@ -379,10 +387,14 @@ class WebBrowserWindow(QMainWindow):
 # ////////////////////////////////////////////////////////////////////////////
 
 # 爬蟲需求畫面
-class scraping(QDialog, WebBrowserWindow):
-    def __init__(self):
+class ScrapingDialog(QDialog):
+    scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成
+
+    def __init__(self, main_window):
         super().__init__()
-        WebBrowserWindow.__init__(self)
+        self.main_window = main_window
+        self.x = None
+        self.y = None
         self.initUI()
 
     def initUI(self):
@@ -391,6 +403,7 @@ class scraping(QDialog, WebBrowserWindow):
         scraping_layout = QVBoxLayout()
         self.scraping_label = QLabel('需要爬幾頁:', self)
         self.scraping_textbox = QLineEdit(self)
+
         scraping_layout.addWidget(self.scraping_label)
         scraping_layout.addWidget(self.scraping_textbox)
 
@@ -409,36 +422,41 @@ class scraping(QDialog, WebBrowserWindow):
         
         self.setGeometry(500, 100, 200, 100)
         self.setWindowTitle('爬取需求畫面')
-        self.show()
-
-        QApplication.closeAllWindows()
-        WebBrowserWindow.show()
     
+    def set_coordinates(self, x, y):
+        self.x = x
+        self.y = y
+
     # 執行爬蟲操作
     def scrape_data(self):
-        if self.scraping_in_progress:
+        self.close()
+        repeat_count = int(self.scraping_textbox.text())
+
+        if self.main_window.scraping_in_progress:
             return  # 如果已經有爬蟲操作在運行，則不執行新的操作
 
-        self.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
+        self.main_window.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
 
-        self.scraping_button.setEnabled(False)
-        self.scraping_button.setText("正在爬蟲...")
+        self.main_window.scraping_button.setEnabled(False)
+        self.main_window.scraping_button.setText("正在爬蟲...")
         self.results = []  # 儲存爬蟲結果的列表
 
-        drivers = webdriver.Chrome()
-        drivers.get(self.browser.url().toString())
+        self.main_window.drivers = webdriver.Chrome()
+        self.main_window.drivers.set_window_size(1200, 1080)
+        self.main_window.drivers.get(self.main_window.browser.url().toString())
 
         def scrape_in_thread():
             # 初始化迴圈索引
             n = 1
-
             while True:
+                if self.main_window.drivers is None:
+                    break  # WebDriver 會話已經關閉，退出迴圈
                 # 構造標題的 XPATH
-                xpath = self.xpath + f"[{n}]"
+                xpath = self.main_window.xpath + f"[{n}]"
 
                 try:
                     # 使用 find_element_by_xpath 找到標題元素
-                    title_element = drivers.find_element(By.XPATH, xpath)
+                    title_element = self.main_window.drivers.find_element(By.XPATH, xpath)
 
                     # 獲取標題文本
                     title_text = title_element.text
@@ -454,42 +472,45 @@ class scraping(QDialog, WebBrowserWindow):
                     # 找不到元素時退出迴圈
                     break
                 # 開始重複執行爬取
+        
         try:
-            while True:
+            for i in range(repeat_count):
                 # 在單獨的線程中執行爬蟲操作
                 self.scraping_thread = threading.Thread(target=scrape_in_thread)
                 self.scraping_thread.start()
 
                 # 尋找並點擊下一頁按鈕
                 try:
-                    next_button = drivers.find_element(By.XPATH, self.selected_button_xpath)
-                    next_button.click()
+                    # 模擬滾輪滑動到底部
+                    self.scroll_to_bottom()
+                    time.sleep(3)
+                    # next_button = self.main_window.drivers.find_element(By.XPATH, self.main_window.selected_button_xpath)
+                    # next_button.click()
+                    actions = ActionChains(self.main_window.drivers)
+                    actions.move_by_offset(self.x, self.y)
+                    actions.click()
+                    i += 1
                 except NoSuchElementException:
                     # 找不到下一頁按鈕，退出迴圈
                     break
 
-                # 模擬滾輪滑動到底部
-                self.scroll_to_bottom()
-
-                # 停一下，給頁面加載時間，可以根據實際情況調整
-                time.sleep(2)
         except Exception as e:
             print(f"發生錯誤：{e}")
         finally:
             # 關閉瀏覽器
-            drivers.quit()
+            self.main_window.drivers.quit()
 
             # 爬蟲完成後，使用信號更新 UI
             self.scraping_done_signal.emit()
 
-            self.scraping_button.setText("爬蟲")  # 恢復按鈕文字
-            self.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
+            self.main_window.scraping_button.setText("爬蟲")  # 恢復按鈕文字
+            self.main_window.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
 
-            self.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
+            self.main_window.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
 
     def scroll_to_bottom(self):
             # 使用 JavaScript 模擬滾輪滑動到底部
-        self.drivers.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        self.main_window.drivers.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(2)  # 等待一段時間，讓新資料加載完成
         
 #////////////////////////////////////////////////////////////////////////////
@@ -497,10 +518,16 @@ class scraping(QDialog, WebBrowserWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
+<<<<<<< Updated upstream
     # username = sys.stdin.read().strip()
     username = "none"
     print(f"使用者名稱 : {username}")
 
+=======
+    # 在這裡改用 input() 來取得使用者輸入
+    # username = sys.stdin.read().strip()
+    username = "none"
+>>>>>>> Stashed changes
 
     main_window = MainWindow()
     web_browser_window = WebBrowserWindow(main_window, username)
@@ -513,8 +540,8 @@ if __name__ == '__main__':
 
     window = QMainWindow()
     window.setCentralWidget(splitter)
-    window.setWindowTitle('Icrawler')
+    window.setWindowTitle('iCrawler')
     window.showMaximized()  # 最大化顯示
-    web_browser_window.scraping_button.clicked.connect(scraping.scrape_data)
+    web_browser_window.scraping_button.clicked.connect(lambda: ScrapingDialog(web_browser_window).exec())
 
     app.exec()

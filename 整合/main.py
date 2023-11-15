@@ -293,26 +293,13 @@ class LoginDialog(QDialog):
         account = self.account_textbox.text()
         password = self.password_textbox.text()
         
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
         response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
         try:
             decoded2_response = response.stdout.decode('gbk')
         except UnicodeDecodeError:
             decoded2_response = response.stdout.decode('utf-8', errors='replace')
-<<<<<<< Updated upstream
-=======
 
         self.get_login_state = decoded2_response
-        print(self.get_login_state)
-        
-
->>>>>>> Stashed changes
-
-        self.get_login_state = decoded2_response
-        print(self.get_login_state)
         
         if account =="" or password =="":
             login_success_popup = login_password(self, self.communicator, self.account_textbox, self.password_textbox)
@@ -361,7 +348,6 @@ class login_yes(QDialog):
         
         self.setGeometry(500, 100, 200, 100)
         self.setWindowTitle('登入成功')
-        print(self.username)
         self.show()
 
     def onLoginButtonClicked_yes(self):

@@ -293,18 +293,19 @@ class LoginDialog(QDialog):
         account = self.account_textbox.text()
         password = self.password_textbox.text()
         
+        if account == "" or password == "":
+            login_success_popup = login_password(self, self.communicator, self.account_textbox, self.password_textbox)
+            login_success_popup.exec()
+            return
+        
         response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
+        
         try:
-            decoded2_response = response.stdout.decode('gbk')
+            decoded2_response = response.stdout.decode('utf-8')
         except UnicodeDecodeError:
             decoded2_response = response.stdout.decode('utf-8', errors='replace')
 
         self.get_login_state = decoded2_response
-        
-        if account =="" or password =="":
-            login_success_popup = login_password(self, self.communicator, self.account_textbox, self.password_textbox)
-            login_success_popup.exec()
-            return
         
         if self.get_login_state[0:4] == "True":
             self.username = self.get_login_state[5:]
@@ -352,8 +353,21 @@ class login_yes(QDialog):
 
     def onLoginButtonClicked_yes(self):
         self.close()
-        QApplication.closeAllWindows()    
-        subprocess.Popen(["python", os.path.join(self.script_dir, "整合.py"), self.username])
+        QApplication.closeAllWindows()
+        print(self.username)
+
+        script_path = os.path.join(self.script_dir, "整合.py")
+        process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(input=self.username.encode('utf-8'))
+
+        print("stdout:", stdout.decode('utf-8'))
+        print("stderr:", stderr.decode('utf-8'))
+
+    # 在這裡處理子進程的輸出
+
+
+    # 在這裡處理子進程的輸出
+
 
 # 沒輸入帳號密碼畫面
 class login_password(QDialog):

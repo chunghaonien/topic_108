@@ -22,6 +22,7 @@ class MainWindow(QWidget):
         self.event_log = []
         self.initUI()
         
+        
 
     def initUI(self):
         self.setGeometry(100, 100, 400, 300)
@@ -62,7 +63,6 @@ class MainWindow(QWidget):
         self.keyboard_listener = None
 
         self.start_time = None
-
         # self.show()
 
     def update_display(self):
@@ -258,7 +258,7 @@ class scraping(QDialog):
 class WebBrowserWindow(QMainWindow):
     scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成
 
-    def __init__(self, main_window):
+    def __init__(self, main_window, username):
         super().__init__()
         self.main_window = main_window
         self.drivers = None
@@ -268,6 +268,7 @@ class WebBrowserWindow(QMainWindow):
         self.scraping_in_progress = False
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.init_ui()
+        self.username = username
 
     def init_ui(self):
         # 設置窗口標題和圖示
@@ -345,7 +346,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 使用者名稱      還沒好
     # ////////////////////////////////////////////////////////////
-        self.account_label = QLabel('帳號:', self)
+        self.account_label = QLabel(f'帳號:{username}', self)
     # ////////////////////////////////////////////////////////////
 
         # 創建一個水平佈局並將按鈕添加到其中
@@ -485,9 +486,12 @@ class WebBrowserWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    main_window = MainWindow()
-    web_browser_window = WebBrowserWindow(main_window)
+    # 在這裡改用 input() 來取得使用者輸入
+    username = sys.stdin.read().strip()
+    print(f"使用者名稱: {username}")
 
+    main_window = MainWindow()
+    web_browser_window = WebBrowserWindow(main_window, username)
 
     # 使用 QSplitter 將瀏覽器窗口放在左邊，MainWindow 放在右邊
     splitter = QSplitter()
@@ -502,3 +506,4 @@ if __name__ == '__main__':
     web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
 
     app.exec()
+

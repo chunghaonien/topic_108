@@ -30,14 +30,8 @@ class MainWindow(QWidget):
         self.keyboard_text_edit = QTextEdit(self)
         self.keyboard_text_edit.setReadOnly(True)
 
-        self.stop_button = QPushButton('停止', self)
-        self.stop_button.clicked.connect(self.stop_capture)
-
         self.start_button = QPushButton('開始記錄', self)
         self.start_button.clicked.connect(self.start_capture)
-
-        self.pause_button = QPushButton('暫停記錄', self)
-        self.pause_button.clicked.connect(self.pause_capture)
 
         self.save_button = QPushButton('儲存', self)
         self.save_button.clicked.connect(self.save_data)
@@ -46,8 +40,6 @@ class MainWindow(QWidget):
         vbox.addWidget(self.mouse_label)
         vbox.addWidget(self.keyboard_text_edit)
         vbox.addWidget(self.start_button)
-        vbox.addWidget(self.pause_button)
-        vbox.addWidget(self.stop_button)
         vbox.addWidget(self.save_button)
 
         self.setLayout(vbox)
@@ -68,27 +60,19 @@ class MainWindow(QWidget):
         x, y = mouse.Controller().position
         mouse_text = f"滑鼠座標：({x}, {y})"
         self.mouse_label.setText(mouse_text)
-
+# ===============================================================================================
     def on_click(self, x, y, button, pressed):
-        if button == mouse.Button.left:
-            button_text = "左鍵"
-        elif button == mouse.Button.right:
-            button_text = "右鍵"
-        else:
-            button_text = "其他按鍵"
-
-        if pressed:
-            self.mouse_state = f"按住點擊：({x}, {y})，按鍵：{button_text}"
-            self.last_mouse_action_time = datetime.now()
-        else:
-            if self.mouse_state:
-                elapsed_time = (datetime.now() - self.last_mouse_action_time).total_seconds()
-                if elapsed_time > 0.1:  # 超過0.1秒視為一個新事件
-                    self.append_action(f"滑鼠拖移：({x}, {y})，按鍵：{button_text}")
-                else:
-                    self.append_action(self.mouse_state)  # 合併連續事件
-
-            self.mouse_state = None
+        if button == mouse.Button.left or button == mouse.Button.right:
+            button_text = "左鍵" if button == mouse.Button.left else "右鍵"
+            
+            if pressed:
+                if self.is_capturing and not self.start_button.isChecked():  # 按下開始記錄且沒有按下開只記錄按鈕
+                    self.append_action(f"滑鼠點擊：({x}, {y})，按鍵：{button_text}")
+                    self.stop_capture()  # 停止記錄
+            else:
+                # 如果是松開事件，不做任何處理
+                pass
+# ===============================================================================================
 
     def on_scroll(self, x, y, dx, dy):
         self.append_action(f"滾輪滾動，水平：{dx}，垂直：{dy}")
@@ -134,17 +118,6 @@ class MainWindow(QWidget):
 
         self.event_thread = threading.Thread(target=self.capture_events)
         self.event_thread.start()
-
-    def pause_capture(self):
-        self.is_capturing = False
-        self.timer.stop()
-
-    def stop_capture(self):
-        self.is_capturing = False
-        if self.mouse_listener:
-            self.mouse_listener.stop()
-        if self.keyboard_listener:
-            self.keyboard_listener.stop()
 
     def save_data(self):
         options = QFileDialog.Options()
@@ -381,10 +354,12 @@ class WebBrowserWindow(QMainWindow):
         self.browser.setUrl(q)
 
     def open_table(self):
-        print(1)
         self.close()
         QApplication.closeAllWindows()
-        subprocess.Popen(["python", os.path.join(self.script_dir, "table.py")])
+
+        script_path = os.path.join(self.script_dir, "table.py")
+        process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(input=self.username.encode('gbk'))
 
     # 更新 URL 地址欄的文字
     def renew_urlbar(self, q):
@@ -497,8 +472,8 @@ class WebBrowserWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    # 在這裡改用 input() 來取得使用者輸入
     username = sys.stdin.read().strip()
+    print(username)
 
     main_window = MainWindow()
     web_browser_window = WebBrowserWindow(main_window, username)

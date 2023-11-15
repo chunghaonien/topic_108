@@ -1,5 +1,8 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton
 from PyQt6.QtCore import Qt, QAbstractTableModel, QVariant
+import sys
+import subprocess
+
 
 headers = ["user_id", "scrap_time", "scrap_data", "url"]
 rows = [("1", "2021-10-01", "data", "https://www.google.com/"), ("2", "2021-10-02", "data", "https://www.google.com/"), ("3", "2021-10-03", "data", "https://www.google.com/")]
@@ -64,14 +67,15 @@ class MainWindow(QMainWindow):
     def select_button_clicked(self): 
 
 
-        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"),user_id], stdout=subprocess.PIPE)
+        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_select.py"),user_id], stdout=subprocess.PIPE)
         print(response.stdout.decode("utf-8"))
 
 
 if __name__ == "__main__":
-    app = QApplication([])
-    # username = username = sys.stdin.read().strip()
+    app = QApplication(sys.argv)
+    username = username = sys.stdin.read().strip()
+    print(username)
 
-    window = MainWindow()
+    window = MainWindow(username)
     window.show()
     app.exec()

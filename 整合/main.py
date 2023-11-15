@@ -94,6 +94,7 @@ class RegisterPage(QDialog):
             decoded1_response = response.stdout.decode()
             self.get_register_state = decoded1_response
 
+
             if self.get_register_state[0:4] == "True":
                 register_success_popup = Register_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
                 register_success_popup.exec()
@@ -306,6 +307,8 @@ class LoginDialog(QDialog):
             decoded2_response = response.stdout.decode('utf-8', errors='replace')
 
         self.get_login_state = decoded2_response
+
+        print(self.get_login_state)
         
         if self.get_login_state[0:4] == "True":
             self.username = self.get_login_state[5:]

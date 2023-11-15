@@ -497,19 +497,10 @@ class scraping(QDialog, WebBrowserWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-<<<<<<< HEAD
-    username = sys.stdin.read().strip()
-    print(username)
-=======
-    # 在這裡改用 input() 來取得使用者輸入
-<<<<<<< Updated upstream
-    username = sys.stdin.read().strip()
-=======
     # username = sys.stdin.read().strip()
     username = "none"
-    print(f"使用者名稱: {username}")
->>>>>>> Stashed changes
->>>>>>> 3485c2574ebaaeb67a28fa8e71801b49adc92c29
+    print(f"使用者名稱 : {username}")
+
 
     main_window = MainWindow()
     web_browser_window = WebBrowserWindow(main_window, username)

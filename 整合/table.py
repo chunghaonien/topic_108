@@ -1,11 +1,11 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLabel
 from PyQt6.QtCore import Qt, QAbstractTableModel, QVariant
 import sys
 import subprocess
 
 
 headers = ["user_id", "scrap_time", "scrap_data", "url"]
-rows = [("1", "2021-10-01", "data", "https://www.google.com/"), ("2", "2021-10-02", "data", "https://www.google.com/"), ("3", "2021-10-03", "data", "https://www.google.com/")]
+rows = []
 
 class TableModel(QAbstractTableModel): 
     def rowCount(self, parent):
@@ -23,11 +23,12 @@ class TableModel(QAbstractTableModel):
         return headers[section]
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, username):
         super().__init__()
 
         self.setWindowTitle("資料表")
         self.setGeometry(500, 100, 1000, 800)
+        self.username = username
 
         model = TableModel()
         table_view = QTableView()
@@ -49,8 +50,11 @@ class MainWindow(QMainWindow):
         download_button.setFixedSize(80, 30)
         download_button.clicked.connect(self.download_button_clicked)
 
+        account_label = QLabel(f'用戶名 : {username}', self)
+        
         # 將按鈕添加到水平佈局
         h_layout = QHBoxLayout()
+        h_layout.addWidget(account_label)
         h_layout.addStretch(1)  #將按鈕推到右邊
         h_layout.addWidget(select_button)
         h_layout.addWidget(download_button)
@@ -65,16 +69,15 @@ class MainWindow(QMainWindow):
         print("下載按鈕被點擊了！")
 
     def select_button_clicked(self): 
-
-
-        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_select.py"),user_id], stdout=subprocess.PIPE)
+        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_select.py"),username], stdout=subprocess.PIPE)
         print(response.stdout.decode("utf-8"))
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    username = username = sys.stdin.read().strip()
-    print(username)
+    username = sys.stdin.read().strip()
+    # username = "none"
+    print(f"使用者名稱 : {username}")
 
     window = MainWindow(username)
     window.show()

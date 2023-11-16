@@ -72,14 +72,8 @@ class MainWindow(QWidget):
             if pressed:
                 if self.is_capturing and not self.start_button.isChecked():  # 按下開始記錄且沒有按下開只記錄按鈕
                     self.append_action(f"滑鼠點擊：({x}, {y})，按鍵：{button_text}")
-<<<<<<< Updated upstream
-                    self.stop_capture()  # 停止記錄
-                    if self.scraping_dialog:
-                        self.scraping_dialog.set_coordinates(x, y)
-=======
                     self.xoffset = x
                     self.yoffset = y
->>>>>>> Stashed changes
             else:
                 # 如果是松開事件，不做任何處理
                 pass
@@ -508,24 +502,13 @@ class ScrapingDialog(QDialog):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-<<<<<<< Updated upstream
     user_data = sys.stdin.read().strip()
 
     username = user_data.split(',')[0]
     user_id = user_data.split(',')[1]
-    
-    print(username)
 
     main_window = MainWindow()
-    web_browser_window = WebBrowserWindow(main_window, username, user_id)
-=======
-    # username = sys.stdin.read().strip()
-    username = "none"
-    print(f"使用者名稱 : {username}")
-
-    main_window = MainWindow()
-    browser_window = WebBrowserWindow(main_window, username)
->>>>>>> Stashed changes
+    browser_window = WebBrowserWindow(main_window, username, user_id)
 
     # 使用 QSplitter 將瀏覽器窗口放在左邊，MainWindow 放在右邊
     splitter = QSplitter()

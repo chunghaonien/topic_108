@@ -74,6 +74,7 @@ class MainWindow(QWidget):
                     self.append_action(f"滑鼠點擊：({x}, {y})，按鍵：{button_text}")
                     self.xoffset = x
                     self.yoffset = y
+                    self.stop_capture()  # 停止記錄
             else:
                 # 如果是松開事件，不做任何處理
                 pass
@@ -502,7 +503,9 @@ class ScrapingDialog(QDialog):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    user_data = sys.stdin.read().strip()
+    
+    # user_data = sys.stdin.read().strip()
+    user_data = "test,1"
 
     username = user_data.split(',')[0]
     user_id = user_data.split(',')[1]

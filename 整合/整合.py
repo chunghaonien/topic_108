@@ -71,18 +71,11 @@ class MainWindow(QWidget):
                 if self.is_capturing and not self.start_button.isChecked():  # 按下開始記錄且沒有按下開只記錄按鈕
                     self.append_action(f"滑鼠點擊：({x}, {y})，按鍵：{button_text}")
                     self.stop_capture()  # 停止記錄
-<<<<<<< Updated upstream
-            else:
-                # 如果是松開事件，不做任何處理
-                pass
-# ===============================================================================================
-=======
                     if self.scraping_dialog:
                         self.scraping_dialog.set_coordinates(x, y)
             else:
                 # 如果是松開事件，不做任何處理
                 pass
->>>>>>> Stashed changes
 
     def on_scroll(self, x, y, dx, dy):
         self.append_action(f"滾輪滾動，水平：{dx}，垂直：{dy}")
@@ -147,7 +140,7 @@ class MainWindow(QWidget):
 # /////////////////////////////////////////////////////////////////////////////////
 
 class WebBrowserWindow(QMainWindow):
-    def __init__(self, main_window, username):
+    def __init__(self, main_window, username, user_id):
         super().__init__()
         self.main_window = main_window
         self.drivers = None
@@ -159,6 +152,7 @@ class WebBrowserWindow(QMainWindow):
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.init_ui()
         self.username = username
+        self.user_id = user_id
 
     def init_ui(self):
         # 設置窗口標題和圖示
@@ -241,6 +235,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 用戶名標籤
         self.account_label = QLabel(f'用戶名:{username}', self)
+        self.user_id = QLabel(f'用戶id:{user_id}', self)
 
         # 創建一個水平佈局並將按鈕添加到其中
         button_layout = QHBoxLayout()
@@ -251,6 +246,7 @@ class WebBrowserWindow(QMainWindow):
         button_layout.addWidget(self.scraping_button)
         button_layout.addStretch(1) #將按鈕推到左邊
 
+        button_layout.addWidget(self.user_id)
         button_layout.addWidget(self.account_label)
         button_layout.addWidget(self.serch_button)
         button_layout.addWidget(self.logout_button)
@@ -277,8 +273,10 @@ class WebBrowserWindow(QMainWindow):
         QApplication.closeAllWindows()
 
         script_path = os.path.join(self.script_dir, "table.py")
+        input_data = f"{self.username},{self.user_id}".encode('gbk')
         process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate(input=self.username.encode('gbk'))
+        stdout, stderr = process.communicate(input=input_data)
+
 
     # 更新 URL 地址欄的文字
     def renew_urlbar(self, q):
@@ -518,19 +516,15 @@ class ScrapingDialog(QDialog):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-<<<<<<< Updated upstream
-    # username = sys.stdin.read().strip()
-    username = "none"
-    print(f"使用者名稱 : {username}")
+    user_data = sys.stdin.read().strip()
 
-=======
-    # 在這裡改用 input() 來取得使用者輸入
-    # username = sys.stdin.read().strip()
-    username = "none"
->>>>>>> Stashed changes
+    username = user_data.split(',')[0]
+    user_id = user_data.split(',')[1]
+    
+    print(username)
 
     main_window = MainWindow()
-    web_browser_window = WebBrowserWindow(main_window, username)
+    web_browser_window = WebBrowserWindow(main_window, username, user_id)
 
     # 使用 QSplitter 將瀏覽器窗口放在左邊，MainWindow 放在右邊
     splitter = QSplitter()

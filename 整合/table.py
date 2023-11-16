@@ -23,12 +23,13 @@ class TableModel(QAbstractTableModel):
         return headers[section]
 
 class MainWindow(QMainWindow):
-    def __init__(self, username):
+    def __init__(self, username, user_id):
         super().__init__()
 
         self.setWindowTitle("資料表")
         self.setGeometry(500, 100, 1000, 800)
         self.username = username
+        self.user_id = user_id
 
         model = TableModel()
         table_view = QTableView()
@@ -51,10 +52,12 @@ class MainWindow(QMainWindow):
         download_button.clicked.connect(self.download_button_clicked)
 
         account_label = QLabel(f'用戶名 : {username}', self)
+        user_id_label = QLabel(f'用戶id : {user_id}', self)
         
         # 將按鈕添加到水平佈局
         h_layout = QHBoxLayout()
         h_layout.addWidget(account_label)
+        h_layout.addWidget(user_id_label)
         h_layout.addStretch(1)  #將按鈕推到右邊
         h_layout.addWidget(select_button)
         h_layout.addWidget(download_button)
@@ -69,16 +72,16 @@ class MainWindow(QMainWindow):
         print("下載按鈕被點擊了！")
 
     def select_button_clicked(self): 
-        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_select.py"),username], stdout=subprocess.PIPE)
+        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_select.py"),user_id], stdout=subprocess.PIPE)
         print(response.stdout.decode("utf-8"))
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    username = sys.stdin.read().strip()
-    # username = "none"
-    print(f"使用者名稱 : {username}")
+    user_data = sys.stdin.read().strip()
+    username = user_data.split(",")[0]
+    user_id = user_data.split(",")[1]
 
-    window = MainWindow(username)
+    window = MainWindow(username, user_id)
     window.show()
     app.exec()

@@ -300,19 +300,32 @@ class LoginDialog(QDialog):
             return
         
         response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
-        
+
         try:
             decoded2_response = response.stdout.decode('gbk')
         except UnicodeDecodeError:
             decoded2_response = response.stdout.decode('utf-8', errors='replace')
 
-        self.get_login_state = decoded2_response
-
-        print(self.get_login_state)
+        evaluated_data = eval(decoded2_response)
         
-        if self.get_login_state[0:4] == "True":
-            self.username = self.get_login_state[5:]
-            login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username)
+        if evaluated_data == False:
+            self.get_login_state = "False"
+        else:
+            if isinstance(evaluated_data, tuple) and len(evaluated_data) == 2:
+                result = [str(evaluated_data[0])]
+                sublist = evaluated_data[1]
+                if sublist and len(sublist) > 0:
+                    inner_tuple = sublist[0]
+                    result.extend(map(str, inner_tuple))
+
+            self.get_login_state = result
+
+        if self.get_login_state[0] == "True":
+
+            self.username = self.get_login_state[1]
+            self.user_id = self.get_login_state[2]
+
+            login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username, self.user_id)
             login_success_popup.exec()
         else:
             login_success_popup = login_no(self, self.communicator, self.account_textbox, self.password_textbox)
@@ -320,7 +333,7 @@ class LoginDialog(QDialog):
 
 # 登入成功畫面
 class login_yes(QDialog):
-    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username, user_id):
         super().__init__()
         self.loginDialog = loginDialog
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -328,6 +341,7 @@ class login_yes(QDialog):
         self.account_textbox = account_textbox
         self.password_textbox = password_textbox
         self.username = username
+        self.user_id = user_id
         self.initUI()
 
     def initUI(self):
@@ -357,14 +371,12 @@ class login_yes(QDialog):
     def onLoginButtonClicked_yes(self):
         self.close()
         QApplication.closeAllWindows()
-        # print(self.username)
-
+        
         script_path = os.path.join(self.script_dir, "整合.py")
+        input_data = f"{self.username},{self.user_id}".encode('gbk')
         process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate(input=self.username.encode('gbk'))
+        stdout, stderr = process.communicate(input=input_data)
 
-        # print("stdout:", stdout.decode('gbk'))
-        # print("stderr:", stderr.decode('gbk'))
 
 
 # 沒輸入帳號密碼畫面

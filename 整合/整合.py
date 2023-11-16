@@ -124,6 +124,13 @@ class MainWindow(QWidget):
         self.event_thread = threading.Thread(target=self.capture_events)
         self.event_thread.start()
 
+    def stop_capture(self):
+        self.is_capturing = False
+        if self.mouse_listener:
+            self.mouse_listener.stop()
+        if self.keyboard_listener:
+            self.keyboard_listener.stop()
+
     def save_data(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog

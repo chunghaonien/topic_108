@@ -94,6 +94,7 @@ class RegisterPage(QDialog):
             decoded1_response = response.stdout.decode()
             self.get_register_state = decoded1_response
 
+
             if self.get_register_state[0:4] == "True":
                 register_success_popup = Register_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username_textbox)
                 register_success_popup.exec()
@@ -293,35 +294,38 @@ class LoginDialog(QDialog):
         account = self.account_textbox.text()
         password = self.password_textbox.text()
         
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
-        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
-        try:
-            decoded2_response = response.stdout.decode('gbk')
-        except UnicodeDecodeError:
-            decoded2_response = response.stdout.decode('utf-8', errors='replace')
-<<<<<<< Updated upstream
-=======
-
-        self.get_login_state = decoded2_response
-        print(self.get_login_state)
-        
-
->>>>>>> Stashed changes
-
-        self.get_login_state = decoded2_response
-        print(self.get_login_state)
-        
-        if account =="" or password =="":
+        if account == "" or password == "":
             login_success_popup = login_password(self, self.communicator, self.account_textbox, self.password_textbox)
             login_success_popup.exec()
             return
         
-        if self.get_login_state[0:4] == "True":
-            self.username = self.get_login_state[5:]
-            login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username)
+        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_login.py"), account, password], stdout=subprocess.PIPE)
+
+        try:
+            decoded2_response = response.stdout.decode('gbk')
+        except UnicodeDecodeError:
+            decoded2_response = response.stdout.decode('utf-8', errors='replace')
+
+        evaluated_data = eval(decoded2_response)
+        
+        if evaluated_data == False:
+            self.get_login_state = "False"
+        else:
+            if isinstance(evaluated_data, tuple) and len(evaluated_data) == 2:
+                result = [str(evaluated_data[0])]
+                sublist = evaluated_data[1]
+                if sublist and len(sublist) > 0:
+                    inner_tuple = sublist[0]
+                    result.extend(map(str, inner_tuple))
+
+            self.get_login_state = result
+
+        if self.get_login_state[0] == "True":
+
+            self.username = self.get_login_state[1]
+            self.user_id = self.get_login_state[2]
+
+            login_success_popup = login_yes(self, self.communicator, self.account_textbox, self.password_textbox, self.username, self.user_id)
             login_success_popup.exec()
         else:
             login_success_popup = login_no(self, self.communicator, self.account_textbox, self.password_textbox)
@@ -329,7 +333,7 @@ class LoginDialog(QDialog):
 
 # 登入成功畫面
 class login_yes(QDialog):
-    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username):
+    def __init__(self, loginDialog, communicator, account_textbox, password_textbox, username, user_id):
         super().__init__()
         self.loginDialog = loginDialog
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -337,6 +341,7 @@ class login_yes(QDialog):
         self.account_textbox = account_textbox
         self.password_textbox = password_textbox
         self.username = username
+        self.user_id = user_id
         self.initUI()
 
     def initUI(self):
@@ -361,15 +366,20 @@ class login_yes(QDialog):
         
         self.setGeometry(500, 100, 200, 100)
         self.setWindowTitle('登入成功')
-        print(self.username)
         self.show()
 
     def onLoginButtonClicked_yes(self):
         self.close()
-        QApplication.closeAllWindows()    
-        subprocess.Popen(["python", os.path.join(self.script_dir, "整合.py"), self.username])
+        QApplication.closeAllWindows()
+        
+        script_path = os.path.join(self.script_dir, "整合.py")
+        input_data = f"{self.username},{self.user_id}".encode('gbk')
+        process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(input=input_data)
 
-# 登入失敗畫面
+
+
+# 沒輸入帳號密碼畫面
 class login_password(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
         super().__init__()
@@ -408,6 +418,7 @@ class login_password(QDialog):
         self.close()
         self.loginDialog.show()
 
+# 登入失敗畫面
 class login_no(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox):
         super().__init__()
@@ -450,6 +461,5 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     communicator = Communicate()
     login_dialog = LoginDialog(communicator)  # 將 communicator 傳遞給 LoginDialog 的構造函式
-
 
     app.exec()

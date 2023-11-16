@@ -1,11 +1,12 @@
 import sys
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTextEdit, QLineEdit, QPushButton, QHBoxLayout, QLabel, QFileDialog, QSplitter
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTextEdit, QLineEdit, QPushButton, QHBoxLayout, QLabel, QFileDialog, QSplitter, QDialog
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSlot, QDateTime, QTimer, QUrl
 from PyQt6.QtCore import Qt
 from selenium.webdriver.common.by import By
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from pynput import mouse, keyboard
 from datetime import datetime
@@ -16,14 +17,13 @@ import subprocess
 import os
 import re
 
-
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.event_log = []
+        self.scraping_dialog = None
         self.initUI()
         
-
     def initUI(self):
         self.setGeometry(100, 100, 400, 300)
         self.setWindowTitle('使用者動作')
@@ -32,14 +32,8 @@ class MainWindow(QWidget):
         self.keyboard_text_edit = QTextEdit(self)
         self.keyboard_text_edit.setReadOnly(True)
 
-        self.stop_button = QPushButton('停止', self)
-        self.stop_button.clicked.connect(self.stop_capture)
-
         self.start_button = QPushButton('開始記錄', self)
         self.start_button.clicked.connect(self.start_capture)
-
-        self.pause_button = QPushButton('暫停記錄', self)
-        self.pause_button.clicked.connect(self.pause_capture)
 
         self.save_button = QPushButton('儲存', self)
         self.save_button.clicked.connect(self.save_data)
@@ -48,8 +42,6 @@ class MainWindow(QWidget):
         vbox.addWidget(self.mouse_label)
         vbox.addWidget(self.keyboard_text_edit)
         vbox.addWidget(self.start_button)
-        vbox.addWidget(self.pause_button)
-        vbox.addWidget(self.stop_button)
         vbox.addWidget(self.save_button)
 
         self.setLayout(vbox)
@@ -63,7 +55,6 @@ class MainWindow(QWidget):
         self.keyboard_listener = None
 
         self.start_time = None
-
         # self.show()
 
     def update_display(self):
@@ -71,27 +62,20 @@ class MainWindow(QWidget):
         x, y = mouse.Controller().position
         mouse_text = f"滑鼠座標：({x}, {y})"
         self.mouse_label.setText(mouse_text)
-
+# ===============================================================================================
     def on_click(self, x, y, button, pressed):
-        if button == mouse.Button.left:
-            button_text = "左鍵"
-        elif button == mouse.Button.right:
-            button_text = "右鍵"
-        else:
-            button_text = "其他按鍵"
-
-        if pressed:
-            self.mouse_state = f"按住點擊：({x}, {y})，按鍵：{button_text}"
-            self.last_mouse_action_time = datetime.now()
-        else:
-            if self.mouse_state:
-                elapsed_time = (datetime.now() - self.last_mouse_action_time).total_seconds()
-                if elapsed_time > 0.1:  # 超過0.1秒視為一個新事件
-                    self.append_action(f"滑鼠拖移：({x}, {y})，按鍵：{button_text}")
-                else:
-                    self.append_action(self.mouse_state)  # 合併連續事件
-
-            self.mouse_state = None
+        if button == mouse.Button.left or button == mouse.Button.right:
+            button_text = "左鍵" if button == mouse.Button.left else "右鍵"
+            
+            if pressed:
+                if self.is_capturing and not self.start_button.isChecked():  # 按下開始記錄且沒有按下開只記錄按鈕
+                    self.append_action(f"滑鼠點擊：({x}, {y})，按鍵：{button_text}")
+                    self.stop_capture()  # 停止記錄
+                    if self.scraping_dialog:
+                        self.scraping_dialog.set_coordinates(x, y)
+            else:
+                # 如果是松開事件，不做任何處理
+                pass
 
     def on_scroll(self, x, y, dx, dy):
         self.append_action(f"滾輪滾動，水平：{dx}，垂直：{dy}")
@@ -138,17 +122,6 @@ class MainWindow(QWidget):
         self.event_thread = threading.Thread(target=self.capture_events)
         self.event_thread.start()
 
-    def pause_capture(self):
-        self.is_capturing = False
-        self.timer.stop()
-
-    def stop_capture(self):
-        self.is_capturing = False
-        if self.mouse_listener:
-            self.mouse_listener.stop()
-        if self.keyboard_listener:
-            self.keyboard_listener.stop()
-
     def save_data(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -164,20 +137,22 @@ class MainWindow(QWidget):
         with open('event_log.txt', 'a') as file:
             file.write(event_info + '\n')
 
+# /////////////////////////////////////////////////////////////////////////////////
 
 class WebBrowserWindow(QMainWindow):
-    scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成
-
-    def __init__(self, main_window):
+    def __init__(self, main_window, username, user_id):
         super().__init__()
         self.main_window = main_window
         self.drivers = None
         self.selected_xpath = None
         self.selected_xpath = []
+        self.selected_button_xpath = None
         self.xpath = None
         self.scraping_in_progress = False
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.init_ui()
+        self.username = username
+        self.user_id = user_id
 
     def init_ui(self):
         # 設置窗口標題和圖示
@@ -223,9 +198,12 @@ class WebBrowserWindow(QMainWindow):
         self.record_highlight_button.clicked.connect(self.show_element_info)
         self.record_highlight_button.setFixedSize(80, 30)
 
+        # 創建傳送資料按鈕
         self.send_xpath_button = QPushButton("資料傳送", self)
         self.send_xpath_button.clicked.connect(self.send_xpath_to_server)  # 設定按鈕點擊事件處理函數
         self.send_xpath_button.setFixedSize(80, 30)
+        self.send_xpath_button.setEnabled(False)  # 初始狀態設為不可用
+        self.send_xpath_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
 
         # 創建返回按鈕
         self.back_button = QPushButton("返回", self)
@@ -234,34 +212,43 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建查詢資料按鈕
         self.serch_button = QPushButton("查詢資料", self)
-        # self.serch_button.clicked.connect(self.browser.back)  #還沒好
+        self.serch_button.clicked.connect(self.open_table)  #還沒好
         self.serch_button.setFixedSize(80, 30)
+        
+        self.button_xpath = QPushButton("按鈕傳送", self)
+        self.button_xpath.clicked.connect(self.send_button_xpath) 
+        self.button_xpath.setFixedSize(80, 30)
+        self.button_xpath.setEnabled(False)  # 初始狀態設為不可用
+        self.button_xpath.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
 
         # 創建開始爬蟲按鈕
         self.scraping_button = QPushButton("開始爬蟲", self)
-        self.scraping_button.clicked.connect(self.scrape_data)  
+        self.scraping_button.clicked.connect(ScrapingDialog)
         self.scraping_button.setFixedSize(80, 30)
+        self.scraping_button.setEnabled(False)  # 初始狀態設為不可用
+        self.scraping_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
 
         # 創建登出按鈕
         self.logout_button = QPushButton("登出", self)
-        # self.logout_button.clicked.connect(self.logout_data)  #還沒好
+        self.logout_button.clicked.connect(self.logout) 
         self.logout_button.setFixedSize(80, 30)
 
-        # 使用者名稱      還沒好
-    # ////////////////////////////////////////////////////////////
-        self.account_label = QLabel('帳號:', self)
-    # ////////////////////////////////////////////////////////////
+        # 用戶名標籤
+        self.account_label = QLabel(f'用戶名:{username}', self)
+        self.user_id = QLabel(f'用戶id:{user_id}', self)
 
         # 創建一個水平佈局並將按鈕添加到其中
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.back_button)
         button_layout.addWidget(self.record_highlight_button)
         button_layout.addWidget(self.send_xpath_button)
+        button_layout.addWidget(self.button_xpath)
         button_layout.addWidget(self.scraping_button)
-        button_layout.addWidget(self.serch_button)
         button_layout.addStretch(1) #將按鈕推到左邊
-        
+
+        button_layout.addWidget(self.user_id)
         button_layout.addWidget(self.account_label)
+        button_layout.addWidget(self.serch_button)
         button_layout.addWidget(self.logout_button)
         
         # 主佈局包含其他小部件和水平佈局
@@ -280,6 +267,16 @@ class WebBrowserWindow(QMainWindow):
         if q.scheme() == '':
             q.setScheme('http')
         self.browser.setUrl(q)
+
+    def open_table(self):
+        self.close()
+        QApplication.closeAllWindows()
+
+        script_path = os.path.join(self.script_dir, "table.py")
+        input_data = f"{self.username},{self.user_id}".encode('gbk')
+        process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(input=input_data)
+
 
     # 更新 URL 地址欄的文字
     def renew_urlbar(self, q):
@@ -305,6 +302,12 @@ class WebBrowserWindow(QMainWindow):
         selected_text = self.browser.page().selectedText()
         if selected_text:
             self.main_window.set_selected_text_to_record(selected_text)
+
+    # 登出
+    def logout(self):
+        self.close()
+        QApplication.closeAllWindows()    
+        subprocess.Popen(["python", os.path.join(self.script_dir, "main.py")])
 
     # 顯示反白文本的元素資訊
     def show_element_info(self):
@@ -340,6 +343,11 @@ class WebBrowserWindow(QMainWindow):
             '''
             self.browser.page().runJavaScript(js_code, self.handle_js_call)
             
+            # 在反白按鈕觸發後，將查詢資料和開始爬蟲按鈕設置為可用
+            self.send_xpath_button.setEnabled(True)     #資料傳送
+            self.send_xpath_button.setStyleSheet("")    # 移除樣式，恢復預設外觀
+            
+            
     @pyqtSlot(str)
     def handle_js_call(self, result):
         if self.main_window.event_log:
@@ -348,9 +356,11 @@ class WebBrowserWindow(QMainWindow):
             self.main_window.event_log.append(event_info)
             self.main_window.append_action(event_info)
 
+            # 只顯示 XPATH 路徑
+            self.selected_button_xpath = result
+
             data = re.search(r'\{(.+?)\}', result)
             extracted_content = data.group(1)
-            # 只顯示 XPATH 路徑
             self.selected_xpath.append(extracted_content)
 
     # 添加一個新方法，用於將所有抓取到的內容一次性傳送
@@ -362,35 +372,89 @@ class WebBrowserWindow(QMainWindow):
         self.xpath = stdout_str.split('+')[0][:-1]
         self.selected_xpath = []
 
+        self.button_xpath.setEnabled(True)          #按鈕傳送
+        self.button_xpath.setStyleSheet("")         # 移除樣式，恢復預設外觀
+
+        # 按鈕傳送
+    def send_button_xpath(self):
+        self.selected_button_xpath = self.selected_button_xpath.split(',')[1][2:-1]
+
+        self.scraping_button.setEnabled(True)       #開始爬蟲按鈕
+        self.scraping_button.setStyleSheet("")      # 移除樣式，恢復預設外觀
+        
+# ////////////////////////////////////////////////////////////////////////////
+
+# 爬蟲需求畫面
+class ScrapingDialog(QDialog):
+    scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成
+
+    def __init__(self, main_window):
+        super().__init__()
+        self.main_window = main_window
+        self.x = None
+        self.y = None
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        scraping_layout = QVBoxLayout()
+        self.scraping_label = QLabel('需要爬幾頁:', self)
+        self.scraping_textbox = QLineEdit(self)
+
+        scraping_layout.addWidget(self.scraping_label)
+        scraping_layout.addWidget(self.scraping_textbox)
+
+        buttons_layout = QHBoxLayout()
+        scraping_button = QPushButton('確認', self)
+        scraping_button.setFixedSize(80, 30)
+        scraping_button.clicked.connect(self.scrape_data)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(scraping_button)
+
+        layout.addLayout(scraping_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(500, 100, 200, 100)
+        self.setWindowTitle('爬取需求畫面')
+    
+    def set_coordinates(self, x, y):
+        self.x = x
+        self.y = y
+
     # 執行爬蟲操作
     def scrape_data(self):
-        if self.scraping_in_progress:
+        self.close()
+        repeat_count = int(self.scraping_textbox.text())
+
+        if self.main_window.scraping_in_progress:
             return  # 如果已經有爬蟲操作在運行，則不執行新的操作
 
-        self.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
+        self.main_window.scraping_in_progress = True  # 設定標誌變數，表示爬蟲操作正在進行中
 
-        self.scraping_button.setEnabled(False)
-        self.scraping_button.setText("正在爬蟲...")
+        self.main_window.scraping_button.setEnabled(False)
+        self.main_window.scraping_button.setText("正在爬蟲...")
         self.results = []  # 儲存爬蟲結果的列表
 
-        def scrape_in_thread():
-            drivers = webdriver.Chrome()
-            drivers.get(self.browser.url().toString())
-            # eles = drivers.find_elements(By.XPATH, self.get_xpath)
-            # self.results = [ele.text for ele in eles]
-            # print(f"爬蟲結果: {self.results}")
-            # drivers.quit()
+        self.main_window.drivers = webdriver.Chrome()
+        self.main_window.drivers.set_window_size(1200, 1080)
+        self.main_window.drivers.get(self.main_window.browser.url().toString())
 
+        def scrape_in_thread():
             # 初始化迴圈索引
             n = 1
-
             while True:
+                if self.main_window.drivers is None:
+                    break  # WebDriver 會話已經關閉，退出迴圈
                 # 構造標題的 XPATH
-                xpath = self.xpath + f"[{n}]"
+                xpath = self.main_window.xpath + f"[{n}]"
 
                 try:
                     # 使用 find_element_by_xpath 找到標題元素
-                    title_element = drivers.find_element(By.XPATH, xpath)
+                    title_element = self.main_window.drivers.find_element(By.XPATH, xpath)
 
                     # 獲取標題文本
                     title_text = title_element.text
@@ -405,25 +469,62 @@ class WebBrowserWindow(QMainWindow):
                 except NoSuchElementException:
                     # 找不到元素時退出迴圈
                     break
+                # 開始重複執行爬取
+        
+        try:
+            for i in range(repeat_count):
+                # 在單獨的線程中執行爬蟲操作
+                self.scraping_thread = threading.Thread(target=scrape_in_thread)
+                self.scraping_thread.start()
+
+                # 尋找並點擊下一頁按鈕
+                try:
+                    # 模擬滾輪滑動到底部
+                    self.scroll_to_bottom()
+                    time.sleep(3)
+                    # next_button = self.main_window.drivers.find_element(By.XPATH, self.main_window.selected_button_xpath)
+                    # next_button.click()
+                    actions = ActionChains(self.main_window.drivers)
+                    actions.move_by_offset(self.x, self.y)
+                    actions.click()
+                    i += 1
+                except NoSuchElementException:
+                    # 找不到下一頁按鈕，退出迴圈
+                    break
+
+        except Exception as e:
+            print(f"發生錯誤：{e}")
+        finally:
+            # 關閉瀏覽器
+            self.main_window.drivers.quit()
 
             # 爬蟲完成後，使用信號更新 UI
             self.scraping_done_signal.emit()
 
-            self.scraping_button.setText("爬蟲")  # 恢復按鈕文字
-            self.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
+            self.main_window.scraping_button.setText("爬蟲")  # 恢復按鈕文字
+            self.main_window.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
 
-            self.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
+            self.main_window.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
 
-        # 在單獨的線程中執行爬蟲操作
-        self.scraping_thread = threading.Thread(target=scrape_in_thread)
-        self.scraping_thread.start()
+    def scroll_to_bottom(self):
+            # 使用 JavaScript 模擬滾輪滑動到底部
+        self.main_window.drivers.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)  # 等待一段時間，讓新資料加載完成
+        
+#////////////////////////////////////////////////////////////////////////////
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    main_window = MainWindow()
-    web_browser_window = WebBrowserWindow(main_window)
+    user_data = sys.stdin.read().strip()
 
+    username = user_data.split(',')[0]
+    user_id = user_data.split(',')[1]
+    
+    print(username)
+
+    main_window = MainWindow()
+    web_browser_window = WebBrowserWindow(main_window, username, user_id)
 
     # 使用 QSplitter 將瀏覽器窗口放在左邊，MainWindow 放在右邊
     splitter = QSplitter()
@@ -433,8 +534,8 @@ if __name__ == '__main__':
 
     window = QMainWindow()
     window.setCentralWidget(splitter)
-    window.setWindowTitle('Icrawler')
+    window.setWindowTitle('iCrawler')
     window.showMaximized()  # 最大化顯示
-    web_browser_window.scraping_button.clicked.connect(web_browser_window.scrape_data)
+    web_browser_window.scraping_button.clicked.connect(lambda: ScrapingDialog(web_browser_window).exec())
 
     app.exec()

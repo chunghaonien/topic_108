@@ -20,13 +20,13 @@ def login(account, password):
 
         # 如果帳號和密碼匹配，再從資料庫中獲取使用者名稱
         if result:
-            username_sql = "SELECT username FROM user WHERE account = %s"
-            cursor.execute(username_sql, (account,))
-            username_result = cursor.fetchone()
+            user_sql = "SELECT username, user_id FROM user WHERE account = %s AND password = %s"
+            cursor.execute(user_sql, (account, password))
+            result_user = cursor.fetchall()
 
-            if username_result:
+            if result_user:
                 # 如果使用者名稱存在，回傳 "True" 和使用者名稱
-                return ["True,", username_result[0]]
+                return "True", result_user
             else:
                 # 如果使用者名稱不存在，回傳 "False"
                 return "False"
@@ -35,3 +35,4 @@ def login(account, password):
             return "False"
     finally:
         db.close()
+

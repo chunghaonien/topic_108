@@ -2,6 +2,7 @@ import asyncio
 import websockets
 from MemberSystem import login_system, register_system
 from Comparison import data_Comparison
+from Select_Data import selectdata
 
 async def handle_connection(websocket, path):
     # 當有新的 WebSocket 連接建立時，這個函數將被呼叫
@@ -14,10 +15,14 @@ async def handle_connection(websocket, path):
 
             # 初始化 response 變數
             response = "Invalid request"  # 或者使用其他適當的預設值
-
+            user_id = ""
+            print(data_list)
+            
             # 判斷類別
             if data_list[0] == 'login':
-                response = login_system.login(data_list[1], data_list[2])
+                response = str(login_system.login(data_list[1], data_list[2]))
+                print(response)
+                # user_id = login_system.login_id(data_list[1], data_list[2])
             elif data_list[0] == 'register':
                 response = str(register_system.register(data_list[1], data_list[2], data_list[3]))
             elif data_list[0] == 'xpath':
@@ -32,8 +37,14 @@ async def handle_connection(websocket, path):
                 result = data_Comparison.data_process(cleaned_data)
                 # print(result)
                 response = str(result)
+            elif data_list[0] == 'select':
+                response = selectdata
 
+            # if user_id != "":
+            #     await websocket.send(response, user_id)
+            # else:
             await websocket.send(response)
+
         except websockets.exceptions.ConnectionClosedError:
             break
         except websockets.exceptions.ConnectionClosedOK:

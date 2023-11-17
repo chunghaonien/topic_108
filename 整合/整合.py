@@ -37,8 +37,11 @@ class MainWindow(QWidget):
         self.start_button = QPushButton('開始記錄', self)
         self.start_button.clicked.connect(self.start_capture)
 
-        self.save_button = QPushButton('儲存', self)
-        self.save_button.clicked.connect(self.save_data)
+        self.start_button = QPushButton('開始記錄', self)
+        self.start_button.clicked.connect(self.start_capture)
+
+        self.stop_button = QPushButton('停止紀錄', self)
+        self.stop_button.clicked.connect(self.stop_capture)
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.mouse_label)

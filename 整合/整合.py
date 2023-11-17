@@ -37,17 +37,14 @@ class MainWindow(QWidget):
         self.start_button = QPushButton('開始記錄', self)
         self.start_button.clicked.connect(self.start_capture)
 
-        self.start_button = QPushButton('開始記錄', self)
-        self.start_button.clicked.connect(self.start_capture)
-
-        self.stop_button = QPushButton('停止紀錄', self)
-        self.stop_button.clicked.connect(self.stop_capture)
+        self.save_buttom = QPushButton('下載', self)
+        self.save_buttom.clicked.connect(self.save_data)
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.mouse_label)
         vbox.addWidget(self.keyboard_text_edit)
         vbox.addWidget(self.start_button)
-        vbox.addWidget(self.save_button)
+        vbox.addWidget(self.save_buttom)
 
         self.setLayout(vbox)
 

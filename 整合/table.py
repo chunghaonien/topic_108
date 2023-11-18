@@ -6,9 +6,6 @@ import os
 import datetime
 import ast
 
-
-
-
 headers = ["user_id", "scrap_time", "scrap_data", "url"]
 rows = []
 
@@ -83,19 +80,6 @@ class MainWindow(QMainWindow):
 
     def download_button_clicked(self):  
         print("下載按鈕被點擊了！")
-
-    def data(self, index, role):
-        if role != Qt.ItemDataRole.DisplayRole:
-            return QVariant()
-
-        value = rows[index.row()][index.column()]
-
-        # 特別處理 scrap_time 欄位，將 datetime.date 物件轉換為字串
-        if isinstance(value, datetime.date):
-            return value.strftime("%Y-%m-%d")
-
-        return value
-
 
     def select_button_clicked(self): 
         global rows

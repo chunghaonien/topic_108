@@ -220,7 +220,7 @@ class WebBrowserWindow(QMainWindow):
 
         # 創建查詢資料按鈕
         self.serch_button = QPushButton("查詢資料", self)
-        self.serch_button.clicked.connect(self.open_table)  #還沒好
+        self.serch_button.clicked.connect(self.open_table)  
         self.serch_button.setFixedSize(80, 30)
 
         # 創建開始爬蟲按鈕
@@ -270,8 +270,14 @@ class WebBrowserWindow(QMainWindow):
         self.browser.setUrl(q)
 
     def open_table(self):
-        self.close()
-        QApplication.closeAllWindows()
+        # self.close()
+        # QApplication.closeAllWindows()
+        
+        # 創建 searchDialog 實例，傳入 main_window 參數
+        dialog_instance = SearchDialog(main_window=self)
+
+        # 呼叫顯示對話框的方法
+        dialog_instance.exec()
 
         script_path = os.path.join(self.script_dir, "table.py")
         input_data = f"{self.username},{self.user_id}".encode('gbk')
@@ -507,6 +513,41 @@ class ScrapingDialog(QDialog):
         time.sleep(2)  # 等待一段時間，讓新資料加載完成
         
 #////////////////////////////////////////////////////////////////////////////
+
+class SearchDialog(QDialog):
+    def __init__(self, main_window, browser_window = None):
+        super().__init__()
+        self.browser_window = browser_window
+        self.main_window = main_window
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        serch_layout = QVBoxLayout()
+        self.serch_label = QLabel('進入後先按下查詢，就可獲得資料', self)
+        
+        serch_layout.addWidget(self.serch_label)
+        
+        buttons_layout = QHBoxLayout()
+        serch_button = QPushButton('確認', self)
+        serch_button.setFixedSize(80, 30)
+        serch_button.clicked.connect(self.serch_close)
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(serch_button)
+
+        layout.addLayout(serch_layout)
+        layout.addLayout(buttons_layout)
+        layout.addStretch()
+
+        self.setLayout(layout)
+        
+        self.setGeometry(800, 500, 300, 100)
+        self.setWindowTitle('使用手冊')
+
+    def serch_close(self):
+        self.close()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

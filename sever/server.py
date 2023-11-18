@@ -20,12 +20,10 @@ async def handle_connection(websocket, path):
             # 初始化 response 變數
             response = "Invalid request"  # 或者使用其他適當的預設值
             user_id = ""
-            print(data_list)
             
             # 判斷類別
             if data_list[0] == 'login':
                 response = str(login_system.login(data_list[1], data_list[2]))
-                print(response)
                 # user_id = login_system.login_id(data_list[1], data_list[2])
             elif data_list[0] == 'register':
                 response = str(register_system.register(data_list[1], data_list[2], data_list[3]))
@@ -44,22 +42,18 @@ async def handle_connection(websocket, path):
             elif data_list[0] == 'select':
                 response = str(selectdata.select_user_id(data_list[1]))
             elif data_list[0] == 'upload':
-                response = upload_result.upload_scrape_data(int(data_list[1]), ', '.join(map(str, data_list[2])))
-                print(str(data_list[2]))
-                print(', '.join(data_list[2]))
-                print(', '.join(map(str, data_list[2])))
+                scrap_data = []
+                for item in data_list[2:]:
+                    scrap_data.append(item)
+                response = upload_result.upload_scrape_data(int(data_list[1]), str(scrap_data))
+                response = str(response)
 
             if user_id != "":
-                print(response)
                 await websocket.send(response, user_id)
             else:
-                # response_json = json.dumps(response)
-                # await websocket.send(response_json)
-                print(response)
                 await websocket.send(response)
 
         except websockets.exceptions.ConnectionClosedError:
-           
             break
         except websockets.exceptions.ConnectionClosedOK:
             break

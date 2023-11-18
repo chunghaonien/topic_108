@@ -41,13 +41,9 @@ async def handle_connection(websocket, path):
                 # print(result)
                 response = str(result)
             elif data_list[0] == 'select':
-<<<<<<< Updated upstream
                 response = selectdata
             elif data_list[0] == 'upload':
                 response = str(upload_result.upload_scrape_data(data_list[1], data_list[2]))
-=======
-                response = str(selectdata.select_user_id(data_list[1]))
->>>>>>> Stashed changes
 
             # if user_id != "":
             #     await websocket.send(response, user_id)

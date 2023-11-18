@@ -13,16 +13,16 @@ def select_user_id(user_id):
         cursor = db.cursor()
 
         # 檢查帳號和密碼的 SQL 語句
-        sql = "SELECT * FROM scraping WHERE user_id = %"
+        sql = "SELECT * FROM scraping WHERE user_id = %s"
         val = (user_id)
         cursor.execute(sql, val)
-        result = cursor.fetchone()
+        results = cursor.fetchall()  # 获取所有符合条件的行
 
         # 
-        if result[0] == user_id:
-            return result
+        if results[0] == user_id:
+            return results
         else:
-            # 如果使用者名稱不存在，回傳 "False"
+            # 如果结果为空，回傳 ["False", None]
             return ["False", None]
     except Exception as e:
         # 處理例外狀況，例如資料庫連接問題

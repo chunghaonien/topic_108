@@ -166,7 +166,7 @@ class WebBrowserWindow(QMainWindow):
     def init_ui(self):
         # 設置窗口標題和圖示
         self.setWindowTitle('網頁瀏覽器')
-        self.setWindowIcon(QIcon('icons/penguin.png'))
+        # self.setWindowIcon(QIcon('icons/penguin.png'))
         self.resize(1200, 800)
         self.setStyleSheet('''
             QPushButton {
@@ -387,12 +387,14 @@ class WebBrowserWindow(QMainWindow):
 
 # 爬蟲需求畫面
 class ScrapingDialog(QDialog):
-    scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成
+    scraping_done_signal = QtCore.pyqtSignal()  # 定義一個信號，用於通知爬蟲操作已完成\
 
     def __init__(self, main_window, browser_window = None):
         super().__init__()
         self.browser_window = browser_window
         self.main_window = main_window
+        self.scraped_data = []
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.initUI()
 
     def initUI(self):
@@ -423,8 +425,6 @@ class ScrapingDialog(QDialog):
 
     # 執行爬蟲操作
     def scrape_data(self):
-        print(self.main_window.xoffset)
-        print(self.main_window.yoffset)
         self.close()
         repeat_count = int(self.scraping_textbox.text())
 
@@ -435,7 +435,6 @@ class ScrapingDialog(QDialog):
 
         self.browser_window.scraping_button.setEnabled(False)
         self.browser_window.scraping_button.setText("正在爬蟲...")
-        self.results = []  # 儲存爬蟲結果的列表
 
         self.browser_window.drivers = webdriver.Chrome()
         self.browser_window.drivers.maximize_window()
@@ -460,7 +459,7 @@ class ScrapingDialog(QDialog):
                     # 獲取標題文本
                     title_text = title_element.text
                     # 顯示標題
-                    print(f"爬蟲結果 {n}: {title_text}")
+                    self.scraped_data.append(f"第{n}筆: {title_text}")
 
                     # 增加迴圈索引
                     n += 1
@@ -474,34 +473,40 @@ class ScrapingDialog(QDialog):
                     continue
         # 開始重複執行爬取
         try:
-            for i in range(repeat_count):
+            for i in range(1, repeat_count+1):
                 # 在單獨的線程中執行爬蟲操作
                 self.scraping_thread = threading.Thread(target=scrape_in_thread)
-                print(f"第{i}頁：\n")
+                self.scraped_data.append(f"第{i}頁: ")
                 self.scraping_thread.start()
 
-                # 尋找並點擊下一頁按鈕
                 try:
-                    time.sleep(2)
-                    actions = ActionChains(self.browser_window.drivers)
-                    actions.move_by_offset((int(self.main_window.xoffset) + 300), (int(self.main_window.yoffset) - 50)).click().perform()
+                    #滾動至頁面最底
+                    self.scroll_to_bottom()
+                    try:
+                        # 尋找並點擊下一頁按鈕
+                        actions = ActionChains(self.browser_window.drivers)
+                        actions.move_by_offset((int(self.main_window.xoffset) + 300), (int(self.main_window.yoffset) - 50)).click().perform()
+                        # 初始滑鼠座標至(0, 0)
+                        actions.move_by_offset(-(int(self.main_window.xoffset) + 300), -(int(self.main_window.yoffset) - 50)).perform()
+                    except:
+                        pass
+
                     i += 1
-
-                # 初始滑鼠座標至(0, 0)
-                    actions.move_by_offset(-(int(self.main_window.xoffset) + 300), -(int(self.main_window.yoffset) - 50)).perform()
-                except NoSuchElementException:
-                # 找不到下一頁按鈕，退出迴圈
-                    break
-
+                except:
+                    pass
         except Exception as e:
             print(f"發生錯誤：{e}")
         finally:
             # 關閉瀏覽器
             self.browser_window.drivers.quit()
 
+            # 爬蟲結果上傳DB
+            self.upload_result()
+
             # 爬蟲完成後，使用信號更新 UI
             self.scraping_done_signal.emit()
-
+            self.browser_window.scraping_button.setText("爬蟲完成")
+            time.sleep(4)
             self.browser_window.scraping_button.setText("開始爬蟲")  # 恢復按鈕文字
             self.browser_window.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
 
@@ -511,7 +516,11 @@ class ScrapingDialog(QDialog):
         # 使用 JavaScript 模擬滾輪滑動到底部
         self.browser_window.drivers.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(2)  # 等待一段時間，讓新資料加載完成
-        
+
+    def upload_result(self):
+        subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_upload.py'), str(self.browser_window.user_id), str(self.scraped_data)], stdout=subprocess.PIPE)
+        self.scraped_data = []
+
 #////////////////////////////////////////////////////////////////////////////
 
 class SearchDialog(QDialog):

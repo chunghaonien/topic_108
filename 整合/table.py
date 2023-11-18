@@ -74,8 +74,16 @@ class MainWindow(QMainWindow):
         print("下載按鈕被點擊了！")
 
     def select_button_clicked(self): 
-        response = subprocess.run(["python", os.path.join(self.script_dir, "Backend_wiring_select.py"),user_id], stdout=subprocess.PIPE)
-        print(response.stdout.decode("utf-8"))
+        try:
+            response = subprocess.run(
+                ["python", os.path.join(self.script_dir, "Backend_wiring_select.py"), self.user_id],
+                stdout=subprocess.PIPE,
+                text=True,  # 將標準輸出解釋為文本
+                timeout=60  # 設定適當的 timeout 時間，單位為秒
+            )
+            print(response.stdout)
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred: {e}")
 
 
 if __name__ == "__main__":

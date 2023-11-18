@@ -4,6 +4,9 @@ import sys
 import subprocess
 import os
 import datetime
+import ast
+
+
 
 
 headers = ["user_id", "scrap_time", "scrap_data", "url"]
@@ -14,10 +17,17 @@ class TableModel(QAbstractTableModel):
         return len(rows)         
     def columnCount(self, parent):        
         return len(headers)    
-    def data(self, index, role):        
-        if role != Qt.ItemDataRole.DisplayRole:            
+    def data(self, index, role):
+        if role != Qt.ItemDataRole.DisplayRole:
             return QVariant()
-        return rows[index.row()][index.column()]        
+
+        value = rows[index.row()][index.column()]
+
+        # 特別處理 scrap_time 欄位，將 datetime.date 物件轉換為字串
+        if isinstance(value, datetime.date):
+            return value.strftime("%Y-%m-%d")
+
+        return value     
         
     def headerData(self, section, orientation, role):        
         if role != Qt.ItemDataRole.DisplayRole or orientation != Qt.Orientation.Horizontal:            
@@ -34,9 +44,9 @@ class MainWindow(QMainWindow):
         self.user_id = user_id
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
 
-        model = TableModel()
+        self.model = TableModel()
         table_view = QTableView()
-        table_view.setModel(model)
+        table_view.setModel(self.model)
 
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
@@ -74,18 +84,41 @@ class MainWindow(QMainWindow):
     def download_button_clicked(self):  
         print("下載按鈕被點擊了！")
 
+    def data(self, index, role):
+        if role != Qt.ItemDataRole.DisplayRole:
+            return QVariant()
+
+        value = rows[index.row()][index.column()]
+
+        # 特別處理 scrap_time 欄位，將 datetime.date 物件轉換為字串
+        if isinstance(value, datetime.date):
+            return value.strftime("%Y-%m-%d")
+
+        return value
+
+
     def select_button_clicked(self): 
+        global rows
+
         try:
             response = subprocess.run(
                 ["python", os.path.join(self.script_dir, "Backend_wiring_select.py"), self.user_id],
                 stdout=subprocess.PIPE,
-                text=True,  # 將標準輸出解釋為文本
-                timeout=60  # 設定適當的 timeout 時間，單位為秒
+                text=True,
+                timeout=60
             )
-            
-            print(response.stdout)
+
+            # 使用 eval 將字符串轉換為真正的列表
+            rows_str = response.stdout.strip()
+            rows = eval(rows_str)
+
+            # 更新模型的資料
+            self.model.layoutAboutToBeChanged.emit()
+            self.model.rows = rows
+            self.model.layoutChanged.emit()
+
         except subprocess.CalledProcessError as e:
-            print(f"An error occurred: {e}")
+            print(f"發生錯誤: {e}")
 
 
 if __name__ == "__main__":

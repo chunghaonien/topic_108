@@ -5,9 +5,11 @@ from Comparison import data_Comparison
 from Select_Data import selectdata
 from ScrapSystem import upload_result
 
+
+
 async def handle_connection(websocket, path):
     # 當有新的 WebSocket 連接建立時，這個函數將被呼叫
-
+    
     while True:
         try:
             data = await websocket.recv()  # 接收來自客戶端的數據
@@ -39,9 +41,13 @@ async def handle_connection(websocket, path):
                 # print(result)
                 response = str(result)
             elif data_list[0] == 'select':
+<<<<<<< Updated upstream
                 response = selectdata
             elif data_list[0] == 'upload':
                 response = str(upload_result.upload_scrape_data(data_list[1], data_list[2]))
+=======
+                response = str(selectdata.select_user_id(data_list[1]))
+>>>>>>> Stashed changes
 
             # if user_id != "":
             #     await websocket.send(response, user_id)
@@ -49,9 +55,11 @@ async def handle_connection(websocket, path):
             await websocket.send(response)
 
         except websockets.exceptions.ConnectionClosedError:
+           
             break
         except websockets.exceptions.ConnectionClosedOK:
             break
+            
 
         # 休眠一小段時間，以減少 CPU 使用率
         await asyncio.sleep(0.1)

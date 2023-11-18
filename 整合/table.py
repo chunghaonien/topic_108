@@ -6,7 +6,7 @@ import os
 import datetime
 import ast
 
-headers = ["user_id", "scrap_time", "scrap_data", "url"]
+headers = ["user_id", "scrap_time", "scrap_data"]
 rows = []
 
 class TableModel(QAbstractTableModel): 

@@ -459,7 +459,7 @@ class ScrapingDialog(QDialog):
                     # 獲取標題文本
                     title_text = title_element.text
                     # 顯示標題
-                    self.scraped_data.append(f"爬蟲結果 {n}: {title_text}")
+                    self.scraped_data.append(f"第{n}筆: {title_text}")
 
                     # 增加迴圈索引
                     n += 1
@@ -476,7 +476,7 @@ class ScrapingDialog(QDialog):
             for i in range(repeat_count):
                 # 在單獨的線程中執行爬蟲操作
                 self.scraping_thread = threading.Thread(target=scrape_in_thread)
-                self.scraped_data.append(f"第{i}頁：\n")
+                self.scraped_data.append(f"\t第{i}頁: \n")
                 self.scraping_thread.start()
 
                 try:
@@ -519,6 +519,7 @@ class ScrapingDialog(QDialog):
 
     def upload_result(self):
         subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_upload.py'), self.browser_window.user_id, self.scraped_data], stdout=subprocess.PIPE)
+        self.scraped_data = []
 
 #////////////////////////////////////////////////////////////////////////////
 

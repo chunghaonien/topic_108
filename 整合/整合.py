@@ -471,6 +471,7 @@ class ScrapingDialog(QDialog):
             for i in range(repeat_count):
                 # 在單獨的線程中執行爬蟲操作
                 self.scraping_thread = threading.Thread(target=scrape_in_thread)
+                print(f"第{i}頁：\n")
                 self.scraping_thread.start()
 
                 # 尋找並點擊下一頁按鈕

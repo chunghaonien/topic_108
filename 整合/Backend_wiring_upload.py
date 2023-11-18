@@ -40,4 +40,4 @@ async def main():
     await asyncio.gather(main_async(args.user_id, args.scraped_data))
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())

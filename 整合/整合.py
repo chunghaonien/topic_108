@@ -473,10 +473,10 @@ class ScrapingDialog(QDialog):
                     continue
         # 開始重複執行爬取
         try:
-            for i in range(repeat_count):
+            for i in range(1, repeat_count+1):
                 # 在單獨的線程中執行爬蟲操作
                 self.scraping_thread = threading.Thread(target=scrape_in_thread)
-                self.scraped_data.append(f"\t第{i}頁: \n")
+                self.scraped_data.append(f"第{i}頁: ")
                 self.scraping_thread.start()
 
                 try:
@@ -497,11 +497,11 @@ class ScrapingDialog(QDialog):
         except Exception as e:
             print(f"發生錯誤：{e}")
         finally:
-            # 爬蟲結果上傳DB
-            self.upload_result()
-
             # 關閉瀏覽器
             self.browser_window.drivers.quit()
+
+            # 爬蟲結果上傳DB
+            self.upload_result()
 
             # 爬蟲完成後，使用信號更新 UI
             self.scraping_done_signal.emit()
@@ -518,7 +518,7 @@ class ScrapingDialog(QDialog):
         time.sleep(2)  # 等待一段時間，讓新資料加載完成
 
     def upload_result(self):
-        subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_upload.py'), self.browser_window.user_id, self.scraped_data], stdout=subprocess.PIPE)
+        subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_upload.py'), str(self.browser_window.user_id), str(self.scraped_data)], stdout=subprocess.PIPE)
         self.scraped_data = []
 
 #////////////////////////////////////////////////////////////////////////////

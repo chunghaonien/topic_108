@@ -43,7 +43,7 @@ async def handle_connection(websocket, path):
             elif data_list[0] == 'select':
                 response = selectdata
             elif data_list[0] == 'upload':
-                response = str(upload_result.upload_scrape_data(int(data_list[1]), data_list[2]))
+                response = upload_result.upload_scrape_data(int(data_list[1]), data_list[2])
 
             # if user_id != "":
             #     await websocket.send(response, user_id)

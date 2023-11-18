@@ -1,5 +1,6 @@
 import asyncio
 import websockets
+import json
 from MemberSystem import login_system, register_system
 from Comparison import data_Comparison
 from Select_Data import selectdata
@@ -41,14 +42,21 @@ async def handle_connection(websocket, path):
                 # print(result)
                 response = str(result)
             elif data_list[0] == 'select':
-                response = selectdata
+                response = str(selectdata.select_user_id(data_list[1]))
             elif data_list[0] == 'upload':
-                response = upload_result.upload_scrape_data(int(data_list[1]), data_list[2])
+                response = upload_result.upload_scrape_data(int(data_list[1]), ', '.join(map(str, data_list[2])))
+                print(str(data_list[2]))
+                print(', '.join(data_list[2]))
+                print(', '.join(map(str, data_list[2])))
 
-            # if user_id != "":
-            #     await websocket.send(response, user_id)
-            # else:
-            await websocket.send(response)
+            if user_id != "":
+                print(response)
+                await websocket.send(response, user_id)
+            else:
+                # response_json = json.dumps(response)
+                # await websocket.send(response_json)
+                print(response)
+                await websocket.send(response)
 
         except websockets.exceptions.ConnectionClosedError:
            

@@ -374,7 +374,7 @@ class WebBrowserWindow(QMainWindow):
         response = subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_Xpath.py'), str(xpath_list)], stdout=subprocess.PIPE)
         if response.stdout is not None:
             stdout_str = response.stdout.decode('utf-8')
-            self.xpath = stdout_str.split('+')[0][:-1]
+            self.xpath = stdout_str.split('+')[0][0:-1]
         else:
             print('Error')
             
@@ -499,10 +499,8 @@ class ScrapingDialog(QDialog):
         finally:
             # 關閉瀏覽器
             self.browser_window.drivers.quit()
-
             # 爬蟲結果上傳DB
-            self.upload_result()
-
+            # self.upload_result()
             # 爬蟲完成後，使用信號更新 UI
             self.scraping_done_signal.emit()
             self.browser_window.scraping_button.setText("爬蟲完成")

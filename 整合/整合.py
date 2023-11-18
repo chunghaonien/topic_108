@@ -453,6 +453,7 @@ class ScrapingDialog(QDialog):
                 try:
                     # 將 xpath 字符串轉換為 By.XPATH 對象
                     xpath_locator = (By.XPATH, xpath)
+                    time.sleep(2)
                     # 使用 find_element_by_xpath 找到標題元素
                     title_element = self.browser_window.drivers.find_element(*xpath_locator)
 
@@ -463,7 +464,6 @@ class ScrapingDialog(QDialog):
 
                     # 增加迴圈索引
                     n += 1
-                    xpath = None
 
                 except NoSuchElementException:
                     # 找不到元素時退出迴圈
@@ -475,8 +475,8 @@ class ScrapingDialog(QDialog):
         try:
             for i in range(1, repeat_count+1):
                 # 在單獨的線程中執行爬蟲操作
-                self.scraping_thread = threading.Thread(target=scrape_in_thread)
                 self.scraped_data.append(f"第{i}頁: ")
+                self.scraping_thread = threading.Thread(target=scrape_in_thread)
                 self.scraping_thread.start()
 
                 try:
@@ -500,7 +500,7 @@ class ScrapingDialog(QDialog):
             # 關閉瀏覽器
             self.browser_window.drivers.quit()
             # 爬蟲結果上傳DB
-            # self.upload_result()
+            self.upload_result()
             # 爬蟲完成後，使用信號更新 UI
             self.scraping_done_signal.emit()
             self.browser_window.scraping_button.setText("爬蟲完成")

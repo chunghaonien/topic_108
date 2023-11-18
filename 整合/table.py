@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt, QAbstractTableModel, QVariant
 import sys
 import subprocess
 import os
+import datetime
 
 
 headers = ["user_id", "scrap_time", "scrap_data", "url"]
@@ -81,6 +82,7 @@ class MainWindow(QMainWindow):
                 text=True,  # 將標準輸出解釋為文本
                 timeout=60  # 設定適當的 timeout 時間，單位為秒
             )
+            
             print(response.stdout)
         except subprocess.CalledProcessError as e:
             print(f"An error occurred: {e}")

@@ -2,7 +2,7 @@ import sys
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QTextEdit, QLineEdit, QPushButton, QHBoxLayout, QLabel, QFileDialog, QSplitter, QDialog
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import pyqtSlot, QDateTime, QTimer, QUrl
+from PyQt6.QtCore import pyqtSlot, QDateTime, QTimer, QUrl ,QThread
 from PyQt6.QtCore import Qt
 from selenium.webdriver.common.by import By
 from selenium import webdriver
@@ -453,7 +453,6 @@ class ScrapingDialog(QDialog):
                 try:
                     # 將 xpath 字符串轉換為 By.XPATH 對象
                     xpath_locator = (By.XPATH, xpath)
-                    time.sleep(2)
                     # 使用 find_element_by_xpath 找到標題元素
                     title_element = self.browser_window.drivers.find_element(*xpath_locator)
 
@@ -498,7 +497,8 @@ class ScrapingDialog(QDialog):
             print(f"發生錯誤：{e}")
         finally:
             # 關閉瀏覽器
-            self.browser_window.drivers.quit()
+            with self.browser_window.drivers as driver:
+                driver.quit()
             # 爬蟲結果上傳DB
             self.upload_result()
             # 爬蟲完成後，使用信號更新 UI

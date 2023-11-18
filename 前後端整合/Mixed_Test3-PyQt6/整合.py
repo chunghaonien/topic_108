@@ -332,8 +332,8 @@ class WebBrowserWindow(QMainWindow):
         def scrape_in_thread():
             drivers = webdriver.Chrome()
             drivers.get(self.browser.url().toString())
-            eles = drivers.find_elements(By.XPATH, self.selected_xpath)
-            self.results = [ele.text for ele in eles]
+            self.results = drivers.find_elements(By.XPATH, self.selected_xpath)
+            # self.results = [ele.text for ele in eles]
             print(f"爬蟲結果: {self.results}")
             drivers.quit()
 

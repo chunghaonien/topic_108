@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, 
 from PyQt6.QtCore import Qt, QAbstractTableModel, QVariant
 import sys
 import subprocess
+import os
 
 
 headers = ["user_id", "scrap_time", "scrap_data", "url"]
@@ -30,6 +31,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(500, 100, 1000, 800)
         self.username = username
         self.user_id = user_id
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
 
         model = TableModel()
         table_view = QTableView()
@@ -78,7 +80,9 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    user_data = sys.stdin.read().strip()
+    # user_data = sys.stdin.read().strip()
+    user_data = "admin,2"
+
     username = user_data.split(",")[0]
     user_id = user_data.split(",")[1]
 

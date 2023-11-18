@@ -13,7 +13,7 @@ def select_user_id(user_id):
         cursor = db.cursor()
 
         # 檢查帳號和密碼的 SQL 語句
-        sql = "SELECT * FROM scraping WHERE user_id = %"
+        sql = "SELECT * FROM scraping WHERE user_id = %s"
         val = (user_id)
         cursor.execute(sql, val)
         result = cursor.fetchone()

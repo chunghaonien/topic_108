@@ -3,6 +3,7 @@ import websockets
 from MemberSystem import login_system, register_system
 from Comparison import data_Comparison
 from Select_Data import selectdata
+from ScrapSystem import upload_result
 
 async def handle_connection(websocket, path):
     # 當有新的 WebSocket 連接建立時，這個函數將被呼叫
@@ -39,6 +40,8 @@ async def handle_connection(websocket, path):
                 response = str(result)
             elif data_list[0] == 'select':
                 response = selectdata
+            elif data_list[0] == 'upload':
+                response = str(upload_result.upload_scrape_data(data_list[1], data_list[2]))
 
             # if user_id != "":
             #     await websocket.send(response, user_id)

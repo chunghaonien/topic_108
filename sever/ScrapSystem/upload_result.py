@@ -16,7 +16,7 @@ def upload_scrape_data(user_id, scraped_data):
         scrape_time = datetime.now().strftime("%Y-%m-%d")
 
         # 插入資料的 SQL 指令
-        sql = "INSERT INTO scraping (user_id, scrap_time, scrap_data) VALUES (%s, %s %s)"
+        sql = "INSERT INTO scraping (user_id, scrap_time, scrap_data) VALUES (%s, %s, %s)"
         val = (user_id, scrape_time, scraped_data)
 
         try:

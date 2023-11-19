@@ -377,8 +377,6 @@ class login_yes(QDialog):
         process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate(input=input_data)
 
-
-
 # 沒輸入帳號密碼畫面
 class login_password(QDialog):
     def __init__(self, loginDialog, communicator, account_textbox, password_textbox):

@@ -11,9 +11,11 @@ rows = []
 
 class TableModel(QAbstractTableModel): 
     def rowCount(self, parent):
-        return len(rows)         
+        return len(rows)       
+      
     def columnCount(self, parent):        
-        return len(headers)    
+        return len(headers)   
+     
     def data(self, index, role):
         if role != Qt.ItemDataRole.DisplayRole:
             return QVariant()
@@ -36,7 +38,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("資料表")
-        self.setGeometry(500, 100, 1000, 800)
+        self.setGeometry(500, 100, 1200, 800)
         self.username = username
         self.user_id = user_id
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -56,14 +58,17 @@ class MainWindow(QMainWindow):
         v_layout = QVBoxLayout()
         v_layout.addWidget(table_view)
 
-        select_button = QPushButton("查詢")
-        select_button.setFixedSize(80, 30)
-        select_button.clicked.connect(self.select_button_clicked)
+        self.select_button = QPushButton("查詢")
+        self.select_button.setFixedSize(80, 30)
+        self.select_button.setStyleSheet("background-color: #008CBA;")
+        self.select_button.clicked.connect(self.select_button_clicked)
 
         # 新增下載按鈕
-        download_button = QPushButton("下載")
-        download_button.setFixedSize(80, 30)
-        download_button.clicked.connect(self.download_button_clicked)
+        self.download_button = QPushButton("下載")
+        self.download_button.setFixedSize(80, 30)
+        self.download_button.setEnabled(False)  # 初始狀態設為不可用
+        self.download_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")
+        self.download_button.clicked.connect(self.download_button_clicked)
 
         account_label = QLabel(f'用戶名 : {username}', self)
         user_id_label = QLabel(f'用戶id : {user_id}', self)
@@ -73,8 +78,8 @@ class MainWindow(QMainWindow):
         h_layout.addWidget(account_label)
         h_layout.addWidget(user_id_label)
         h_layout.addStretch(1)  #將按鈕推到右邊
-        h_layout.addWidget(select_button)
-        h_layout.addWidget(download_button)
+        h_layout.addWidget(self.select_button)
+        h_layout.addWidget(self.download_button)
         
         # 添加水平佈局到垂直佈局
         v_layout.addLayout(h_layout)
@@ -85,7 +90,7 @@ class MainWindow(QMainWindow):
     def download_button_clicked(self):  
         print("下載按鈕被點擊了！")
 
-    def select_button_clicked(self): 
+    def select_button_clicked(self, download_button): 
         global rows
 
         try:
@@ -108,6 +113,8 @@ class MainWindow(QMainWindow):
         except subprocess.CalledProcessError as e:
             print(f"發生錯誤: {e}")
 
+        self.download_button.setEnabled(True)    # 啟用下載按鈕
+        self.download_button.setStyleSheet("")    # 移除樣式，恢復預設外觀
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

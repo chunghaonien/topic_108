@@ -558,10 +558,7 @@ class SearchDialog(QDialog):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-
-    
-    # user_data = sys.stdin.read().strip()
-    user_data = "test,1"
+    user_data = sys.stdin.read().strip()
 
     username = user_data.split(',')[0]
     user_id = user_data.split(',')[1]

@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLabel
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLabel, QHeaderView
 from PyQt6.QtCore import Qt, QAbstractTableModel, QVariant
 import sys
 import subprocess
@@ -43,7 +43,11 @@ class MainWindow(QMainWindow):
 
         self.model = TableModel()
         table_view = QTableView()
+        # 設置水平標題為等寬模式
+        table_view.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
         table_view.setModel(self.model)
+
 
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)

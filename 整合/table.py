@@ -1,10 +1,11 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLabel, QHeaderView
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLabel, QHeaderView, QInputDialog, QMessageBox
 from PyQt6.QtCore import Qt, QAbstractTableModel, QVariant
 import sys
 import subprocess
 import os
 import datetime
 import ast
+import csv
 
 headers = ["user_id", "scrap_time", "scrap_data"]
 rows = []
@@ -88,7 +89,46 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def download_button_clicked(self):  
-        print("下載按鈕被點擊了！")
+        global rows
+
+        # 詢問使用者輸入檔案名稱
+        while True:
+            file_name, ok_pressed = QInputDialog.getText(self, "輸入檔案名稱", "請輸入檔案名稱:")
+            if not ok_pressed:
+                return  # 使用者按下取消，終止下載
+
+            if not file_name:
+                print("檔案名稱不能為空")
+                continue  # 檔案名稱為空，重新詢問
+
+            # 加上 .csv 副檔名
+            csv_filename = f"{file_name}.csv"
+
+            if os.path.exists(csv_filename):
+                # 使用 QMessageBox 提醒使用者
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Icon.Warning)
+                msg.setText(f"檔案 '{csv_filename}' 已存在，請選擇其他名稱。")
+                msg.setWindowTitle("檔案已存在")
+                msg.exec()
+            else:
+                break  # 檔案不存在，退出迴圈
+
+        try:
+            with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+                csv_writer = csv.writer(csvfile)
+
+                # 寫入標題
+                csv_writer.writerow(headers)
+
+                # 寫入資料
+                csv_writer.writerows(rows)
+
+            print(f"資料已成功下載到 {csv_filename}")
+
+        except Exception as e:
+            print(f"下載資料時發生錯誤: {e}")
+
 
     def select_button_clicked(self, download_button): 
         global rows

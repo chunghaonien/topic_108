@@ -280,7 +280,7 @@ class WebBrowserWindow(QMainWindow):
         dialog_instance.exec()
 
         script_path = os.path.join(self.script_dir, "table.py")
-        input_data = f"{self.username},{self.user_id}".encode('gbk')
+        input_data = f"{self.username},{self.user_id}".encode('utf-8')
         process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate(input=input_data)
 

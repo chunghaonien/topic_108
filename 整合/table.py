@@ -4,34 +4,49 @@ import sys
 import subprocess
 import os
 import datetime
-import ast
+import json  # 添加导入json模块
 import csv
+from subprocess import Popen, PIPE, STDOUT
+import ast
+import asyncio
+from Backend_wiring_select import main_async
+import re
 
 headers = ["user_id", "scrap_time", "scrap_data"]
 rows = []
 
 class TableModel(QAbstractTableModel): 
     def rowCount(self, parent):
-        return len(rows)       
-      
-    def columnCount(self, parent):        
-        return len(headers)   
-     
+        return len(rows)
+
+    def columnCount(self, parent):
+        return len(headers)
+
     def data(self, index, role):
         if role != Qt.ItemDataRole.DisplayRole:
             return QVariant()
 
-        value = rows[index.row()][index.column()]
+        row = index.row()
+        col = index.column()
 
-        # 特別處理 scrap_time 欄位，將 datetime.date 物件轉換為字串
-        if isinstance(value, datetime.date):
-            return value.strftime("%Y-%m-%d")
+        if row < len(rows):
+            item = rows[row]
 
-        return value     
-        
-    def headerData(self, section, orientation, role):        
-        if role != Qt.ItemDataRole.DisplayRole or orientation != Qt.Orientation.Horizontal:            
-            return QVariant()        
+            if col < len(item):
+                value = item[col]
+
+                # 特別處理 scrap_time 欄位，將 datetime.date 物件轉換為字串
+                if isinstance(value, datetime.date):
+                    return value.strftime("%Y-%m-%d")
+
+                return value
+
+        return QVariant()
+
+
+    def headerData(self, section, orientation, role):
+        if role != Qt.ItemDataRole.DisplayRole or orientation != Qt.Orientation.Horizontal:
+            return QVariant()
         return headers[section]
 
 class MainWindow(QMainWindow):
@@ -50,7 +65,6 @@ class MainWindow(QMainWindow):
         table_view.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         table_view.setModel(self.model)
-
 
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
@@ -73,7 +87,7 @@ class MainWindow(QMainWindow):
 
         account_label = QLabel(f'用戶名 : {username}', self)
         user_id_label = QLabel(f'用戶id : {user_id}', self)
-        
+
         # 將按鈕添加到水平佈局
         h_layout = QHBoxLayout()
         h_layout.addWidget(account_label)
@@ -81,14 +95,14 @@ class MainWindow(QMainWindow):
         h_layout.addStretch(1)  #將按鈕推到右邊
         h_layout.addWidget(self.select_button)
         h_layout.addWidget(self.download_button)
-        
+
         # 添加水平佈局到垂直佈局
         v_layout.addLayout(h_layout)
 
         layout.addLayout(v_layout)
         self.setCentralWidget(central_widget)
 
-    def download_button_clicked(self):  
+    def download_button_clicked(self):
         global rows
 
         # 詢問使用者輸入檔案名稱
@@ -130,35 +144,44 @@ class MainWindow(QMainWindow):
             print(f"下載資料時發生錯誤: {e}")
 
 
-    def select_button_clicked(self, download_button): 
+    def select_button_clicked(self, download_button):
         global rows
 
+        response = asyncio.run(main_async(self.user_id))
+
+        # 定义正则表达式来匹配 datetime.date 对象
+        date_pattern = re.compile(r"datetime\.date\((\d+), (\d+), (\d+)\)")
+
+        # 替换 datetime.date 字符串为 '"YYYY-MM-DD"' 格式
+        def date_replacer(match):
+            year, month, day = match.groups()
+            return f'"{year}-{month}-{day}"'
+
+        # 将 response 中的 datetime.date 对象替换为字符串
+        response_with_dates_as_strings = date_pattern.sub(date_replacer, response)
+
         try:
-            response = subprocess.run(
-                ["python", os.path.join(self.script_dir, "Backend_wiring_select.py"), self.user_id],
-                stdout=subprocess.PIPE,
-                text=True,
-                timeout=60
-            )
+            # 使用 ast.literal_eval 将修改后的字符串转换为列表
+            rows_temp = ast.literal_eval(response_with_dates_as_strings)
 
-            # 使用 eval 將字符串轉換為真正的列表
-            rows_str = response.stdout.strip()
-            rows = eval(rows_str)
+            # 将日期字符串转换回 datetime.date 对象
+            rows = [(user_id, datetime.datetime.strptime(date_string, "%Y-%m-%d").date(), data)
+                    for user_id, date_string, data in rows_temp]
 
-            # 更新模型的資料
-            self.model.layoutAboutToBeChanged.emit()
-            self.model.rows = rows
-            self.model.layoutChanged.emit()
+        except Exception as e:
+            print(f"An error occurred while parsing the response: {e}")
+            rows = []
 
-        except subprocess.CalledProcessError as e:
-            print(f"發生錯誤: {e}")
+        self.model.layoutAboutToBeChanged.emit()
+        self.model.layoutChanged.emit()
 
-        self.download_button.setEnabled(True)    # 啟用下載按鈕
-        self.download_button.setStyleSheet("")    # 移除樣式，恢復預設外觀
+        self.download_button.setEnabled(True)
+        self.download_button.setStyleSheet("")
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    user_data = sys.stdin.read().strip()
+    user_data = "test,3"  # 這裡只是為了示例，實際使用應該根據您的需求來獲取用戶數據
 
     username = user_data.split(",")[0]
     user_id = user_data.split(",")[1]

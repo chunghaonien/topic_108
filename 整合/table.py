@@ -181,8 +181,8 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    user_data = "test,3"  # 這裡只是為了示例，實際使用應該根據您的需求來獲取用戶數據
-
+    # user_data = "test,3"  # 這裡只是為了示例，實際使用應該根據您的需求來獲取用戶數據
+    user_data = sys.stdin.read().strip()
     username = user_data.split(",")[0]
     user_id = user_data.split(",")[1]
 

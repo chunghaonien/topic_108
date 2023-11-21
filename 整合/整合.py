@@ -458,23 +458,30 @@ class ScrapingDialog(QDialog):
 
                     # 獲取標題文本
                     title_text = title_element.text
+
                     # 顯示標題
-                    self.scraped_data.append(f"第{n}筆: {title_text}")
+                    if title_text:
+                        self.scraped_data.append(f"第{n}筆: {title_text}")
+                    else:
+                        self.scraped_data.append(f"第{n}筆: *查無結果*")
 
                     # 增加迴圈索引
                     n += 1
 
                 except NoSuchElementException:
                     # 找不到元素時退出迴圈
-                    break
+                    print(f'Error: NoSuchElementException')
+                    continue
                 except StaleElementReferenceException:
                     # 元素過時，重新查找元素
                     continue
+
         # 開始重複執行爬取
         try:
+            self.scraped_data.append(f"-------------------------爬蟲資料-------------------------")
             for i in range(1, repeat_count+1):
                 # 在單獨的線程中執行爬蟲操作
-                self.scraped_data.append(f"第{i}頁: ")
+                self.scraped_data.append(f"--------------------------第{i}頁--------------------------")
                 self.scraping_thread = threading.Thread(target=scrape_in_thread)
                 self.scraping_thread.start()
 
@@ -488,18 +495,19 @@ class ScrapingDialog(QDialog):
                         # 初始滑鼠座標至(0, 0)
                         actions.move_by_offset(-(int(self.main_window.xoffset) + 300), -(int(self.main_window.yoffset) - 50)).perform()
                     except:
-                        pass
+                        continue
 
                     i += 1
                 except:
-                    pass
+                    continue
         except Exception as e:
             print(f"發生錯誤：{e}")
         finally:
             # 關閉瀏覽器
             with self.browser_window.drivers as driver:
                 driver.quit()
-            # 爬蟲結果上傳DB
+            # # 爬蟲結果上傳DB
+            # print(self.scraped_data)
             self.upload_result()
             # 爬蟲完成後，使用信號更新 UI
             self.scraping_done_signal.emit()
@@ -559,6 +567,7 @@ class SearchDialog(QDialog):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     user_data = sys.stdin.read().strip()
+    # user_data = "test,3"
 
     username = user_data.split(',')[0]
     user_id = user_data.split(',')[1]

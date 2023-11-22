@@ -152,7 +152,6 @@ class WebBrowserWindow(QMainWindow):
     def __init__(self, main_window, username, user_id):
         super().__init__()
         self.main_window = main_window
-        self.drivers = None
         self.selected_xpath = None
         self.selected_xpath = []
         self.selected_button_xpath = None
@@ -383,6 +382,7 @@ class WebBrowserWindow(QMainWindow):
         self.scraping_button.setEnabled(True)       #開始爬蟲按鈕
         self.scraping_button.setStyleSheet("")      # 移除樣式，恢復預設外觀
 
+
 # ////////////////////////////////////////////////////////////////////////////
 
 # 爬蟲需求畫面
@@ -394,6 +394,7 @@ class ScrapingDialog(QDialog):
         self.browser_window = browser_window
         self.main_window = main_window
         self.scraped_data = []
+        self.drivers = None  # 新增一個成員變數用於存放 WebDriver
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.initUI()
 
@@ -436,15 +437,15 @@ class ScrapingDialog(QDialog):
         self.browser_window.scraping_button.setEnabled(False)
         self.browser_window.scraping_button.setText("正在爬蟲...")
 
-        self.browser_window.drivers = webdriver.Chrome()
-        self.browser_window.drivers.maximize_window()
-        self.browser_window.drivers.get(self.browser_window.browser.url().toString())
+        self.drivers = webdriver.Chrome()
+        self.drivers.maximize_window()
+        self.drivers.get(self.browser_window.browser.url().toString())
 
         def scrape_in_thread():
             # 初始化迴圈索引
             n = 1
             while True:
-                if self.browser_window.drivers is None:
+                if self.drivers is None:
                     break  # WebDriver 會話已經關閉，退出迴圈
                 
                 # 構造標題的 XPATH
@@ -454,7 +455,7 @@ class ScrapingDialog(QDialog):
                     # 將 xpath 字符串轉換為 By.XPATH 對象
                     xpath_locator = (By.XPATH, xpath)
                     # 使用 find_element_by_xpath 找到標題元素
-                    title_element = self.browser_window.drivers.find_element(*xpath_locator)
+                    title_element = self.drivers.find_element(*xpath_locator)
 
                     # 獲取標題文本
                     title_text = title_element.text
@@ -471,7 +472,7 @@ class ScrapingDialog(QDialog):
                 except NoSuchElementException:
                     # 找不到元素時退出迴圈
                     print(f'Error: NoSuchElementException')
-                    continue
+                    break
                 except StaleElementReferenceException:
                     # 元素過時，重新查找元素
                     continue
@@ -485,27 +486,25 @@ class ScrapingDialog(QDialog):
                 self.scraping_thread = threading.Thread(target=scrape_in_thread)
                 self.scraping_thread.start()
 
-                try:
-                    #滾動至頁面最底
-                    self.scroll_to_bottom()
+                #滾動至頁面最底
+                self.scroll_to_bottom()
                     
-                    # 尋找並點擊下一頁按鈕
-                    actions = ActionChains(self.browser_window.drivers)
-                    actions.move_by_offset((self.main_window.xoffset + 300), (self.main_window.yoffset - 50)).click().perform()
-                    # 初始滑鼠座標至(0, 0)
-                    actions.move_by_offset(-(self.main_window.xoffset + 300), -(self.main_window.yoffset - 50)).perform()
+                # 尋找並點擊下一頁按鈕
+                actions = ActionChains(self.drivers)
+                actions.move_by_offset((self.main_window.xoffset + 300), (self.main_window.yoffset - 50)).click().perform()
+                # 初始滑鼠座標至(0, 0)
+                actions.move_by_offset(-(self.main_window.xoffset + 300), -(self.main_window.yoffset - 50)).perform()
 
-                    i += 1
-                except:
-                    continue
+                i += 1
+
         except Exception as e:
             print(f"發生錯誤：{e}")
         finally:
             # 關閉瀏覽器
-            with self.browser_window.drivers as driver:
-                driver.quit()
+            if self.drivers:
+                with self.drivers as driver:
+                    driver.quit()
             # # 爬蟲結果上傳DB
-            # print(self.scraped_data)
             self.upload_result()
             # 爬蟲完成後，使用信號更新 UI
             self.scraping_done_signal.emit()
@@ -518,8 +517,8 @@ class ScrapingDialog(QDialog):
 
     def scroll_to_bottom(self):
         # 使用 JavaScript 模擬滾輪滑動到底部
-        self.browser_window.drivers.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(4)  # 等待一段時間，讓新資料加載完成
+        self.drivers.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)  # 等待一段時間，讓新資料加載完成
 
     def upload_result(self):
         subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_upload.py'), str(self.browser_window.user_id), str(self.scraped_data)], stdout=subprocess.PIPE)

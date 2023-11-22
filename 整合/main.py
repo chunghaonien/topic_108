@@ -101,6 +101,12 @@ class RegisterPage(QDialog):
             else:
                 register_success_popup = Register_no(self, self.communicator, self.account_textbox, self.password_textbox, self.confirm_password_textbox, self.username_textbox)
                 register_success_popup.exec()
+        
+        if account == "" or password == "" or confirm_password == "" or username == "":
+                login_success_popup = login_password(self, self.communicator, self.account_textbox, self.password_textbox)
+                login_success_popup.exec()
+                return
+
 
 # 判定密碼是否相同畫面
 class Register_confirm_password(QDialog):

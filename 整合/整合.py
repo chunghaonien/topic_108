@@ -488,14 +488,12 @@ class ScrapingDialog(QDialog):
                 try:
                     #滾動至頁面最底
                     self.scroll_to_bottom()
-                    try:
-                        # 尋找並點擊下一頁按鈕
-                        actions = ActionChains(self.browser_window.drivers)
-                        actions.move_by_offset((int(self.main_window.xoffset) + 300), (int(self.main_window.yoffset) - 50)).click().perform()
-                        # 初始滑鼠座標至(0, 0)
-                        actions.move_by_offset(-(int(self.main_window.xoffset) + 300), -(int(self.main_window.yoffset) - 50)).perform()
-                    except:
-                        continue
+                    
+                    # 尋找並點擊下一頁按鈕
+                    actions = ActionChains(self.browser_window.drivers)
+                    actions.move_by_offset((self.main_window.xoffset + 300), (self.main_window.yoffset - 50)).click().perform()
+                    # 初始滑鼠座標至(0, 0)
+                    actions.move_by_offset(-(self.main_window.xoffset + 300), -(self.main_window.yoffset - 50)).perform()
 
                     i += 1
                 except:
@@ -521,7 +519,7 @@ class ScrapingDialog(QDialog):
     def scroll_to_bottom(self):
         # 使用 JavaScript 模擬滾輪滑動到底部
         self.browser_window.drivers.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)  # 等待一段時間，讓新資料加載完成
+        time.sleep(4)  # 等待一段時間，讓新資料加載完成
 
     def upload_result(self):
         subprocess.run(['python', os.path.join(self.script_dir, 'Backend_wiring_upload.py'), str(self.browser_window.user_id), str(self.scraped_data)], stdout=subprocess.PIPE)

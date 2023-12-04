@@ -1,11 +1,13 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QDialog, QLabel, QHBoxLayout, QLineEdit
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QDialog, QLabel, QHBoxLayout, QLineEdit, QFormLayout, QDialogButtonBox
 import sys
+from PyQt6.QtGui import QColor
 import websockets
 import asyncio
 from PyQt6.QtCore import QTimer
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, Qt
 import subprocess
 import os
+
 
 class Communicate(QObject):
     RegisterSignal = pyqtSignal(str, str, str)
@@ -23,54 +25,80 @@ class RegisterPage(QDialog):
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout()
+        layout = QFormLayout()
 
         # 帳號欄位
-        account_layout = QHBoxLayout()
         self.account_label = QLabel('帳號', self)
         self.account_textbox = QLineEdit(self)
-        account_layout.addWidget(self.account_label)
-        account_layout.addWidget(self.account_textbox)
-        layout.addLayout(account_layout)
+        layout.addRow(self.account_label, self.account_textbox)
 
         # 密碼欄位
-        password_layout = QHBoxLayout()
         self.password_label = QLabel('密碼', self)
         self.password_textbox = QLineEdit(self)
-        password_layout.addWidget(self.password_label)
-        password_layout.addWidget(self.password_textbox)
-        layout.addLayout(password_layout)
+        layout.addRow(self.password_label, self.password_textbox)
 
         # 確認密碼欄位
-        confirm_password_layout = QHBoxLayout()
         self.confirm_password_label = QLabel('確認密碼', self)
         self.confirm_password_textbox = QLineEdit(self)
-        confirm_password_layout.addWidget(self.confirm_password_label)
-        confirm_password_layout.addWidget(self.confirm_password_textbox)
-        layout.addLayout(confirm_password_layout)
+        layout.addRow(self.confirm_password_label, self.confirm_password_textbox)
 
         # 暱稱欄位
-        username_layout = QHBoxLayout()
         self.username_label = QLabel('暱稱', self)
         self.username_textbox = QLineEdit(self)
-        username_layout.addWidget(self.username_label)
-        username_layout.addWidget(self.username_textbox)
-        layout.addLayout(username_layout)
-        
-        # 水平布局來放置返回按鈕和確定按鈕
-        buttons_layout = QHBoxLayout()
+        layout.addRow(self.username_label, self.username_textbox)
 
-        # 確定按鈕
-        yes_button = QPushButton('確定', self)
-        yes_button.setFixedSize(80, 30)
-        yes_button.clicked.connect(self.onRegisterButtonClicked)  
+        # 使用按鈕框(QDialogButtonBox)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+        button_box.accepted.connect(self.onRegisterButtonClicked)
+        button_box.rejected.connect(self.reject)
 
-        # 將按鈕放入水平佈局中
-        buttons_layout.addWidget(yes_button)
-        buttons_layout.addStretch(1)
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f7f7f7;
+            }
 
-        layout.addLayout(buttons_layout)
-        self.setLayout(layout)
+            QLabel {
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                border: 2px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+
+            QDialogButtonBox {
+                margin: 10px 0;
+            }
+            """
+        )
+
+        # 垂直佈局中添加表單佈局和按鈕框
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(layout)
+        main_layout.addWidget(button_box)
+
+        # 設置背景顏色
+        palette = self.palette()
+        palette.setColor(self.backgroundRole(), QColor(240, 240, 240))  # 調整為你想要的顏色
+        self.setPalette(palette)
+
+        # 設置窗口標題和大小
+        self.setLayout(main_layout)
         self.setGeometry(500, 100, 500, 300)  # 設視窗大小及位置
         self.setWindowTitle('註冊')
         self.show()
@@ -128,6 +156,41 @@ class Register_confirm_password(QDialog):
         buttons_layout.addStretch(1)
         buttons_layout.addWidget(confirm_button)
 
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f7f7f7;
+            }
+
+            QLabel {
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                border: 2px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+
+            QDialogButtonBox {
+                margin: 10px 0;
+            }
+            """
+        )
+
         layout.addLayout(log_layout)
         layout.addLayout(buttons_layout)
         layout.addStretch()
@@ -166,6 +229,41 @@ class Register_yes(QDialog):
         login_button.clicked.connect(self.onRegisterButtonClicked_yes)
         buttons_layout.addStretch(1)
         buttons_layout.addWidget(login_button)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f7f7f7;
+            }
+
+            QLabel {
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                border: 2px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+
+            QDialogButtonBox {
+                margin: 10px 0;
+            }
+            """
+        )
 
         layout.addLayout(log_layout)
         layout.addLayout(buttons_layout)
@@ -209,6 +307,41 @@ class Register_no(QDialog):
         login_button.clicked.connect(self.onRegisterButtonClicked_no)
         buttons_layout.addStretch(1)
         buttons_layout.addWidget(login_button)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f7f7f7;
+            }
+
+            QLabel {
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                border: 2px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+
+            QDialogButtonBox {
+                margin: 10px 0;
+            }
+            """
+        )
 
         layout.addLayout(log_layout)
         layout.addLayout(buttons_layout)
@@ -264,18 +397,56 @@ class LoginDialog(QDialog):
 
         # 登入按鈕
         login_button = QPushButton('登入', self)
-        login_button.setFixedSize(80, 30)
+        login_button.setFixedSize(200, 30)
         login_button.clicked.connect(self.onLoginButtonClicked)  # 使用包裝後的函數
 
         # 註冊按鈕
         register_button = QPushButton('註冊', self)
         register_button.clicked.connect(self.open_register_page)
-        register_button.setFixedSize(80, 30)
+        register_button.setFixedSize(200, 30)
 
         # 將兩個按鈕放入水平佈局中
         buttons_layout.addWidget(login_button)
-        buttons_layout.addWidget(register_button)
         buttons_layout.addStretch(1)
+        buttons_layout.addWidget(register_button)
+
+        # 設置水平佈局的對齊方式，使按鈕置中
+        buttons_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f7f7f7;
+            }
+
+            QLabel {
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                border: 2px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+
+            QDialogButtonBox {
+                margin: 10px 0;
+            }
+            """
+        )
 
         layout.addLayout(buttons_layout)
         layout.addWidget(register_button)
@@ -358,6 +529,41 @@ class login_yes(QDialog):
         buttons_layout.addStretch(1)
         buttons_layout.addWidget(login_button)
 
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f7f7f7;
+            }
+
+            QLabel {
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                border: 2px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+
+            QDialogButtonBox {
+                margin: 10px 0;
+            }
+            """
+        )
+
         layout.addLayout(log_layout)
         layout.addLayout(buttons_layout)
         layout.addStretch()
@@ -402,6 +608,41 @@ class login_password(QDialog):
         buttons_layout.addStretch(1)
         buttons_layout.addWidget(login_button)
 
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f7f7f7;
+            }
+
+            QLabel {
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                border: 2px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+
+            QDialogButtonBox {
+                margin: 10px 0;
+            }
+            """
+        )
+
         layout.addLayout(log_layout)
         layout.addLayout(buttons_layout)
         layout.addStretch()
@@ -440,6 +681,41 @@ class login_no(QDialog):
         login_button.clicked.connect(self.onLoginButtonClicked)
         buttons_layout.addStretch(1)
         buttons_layout.addWidget(login_button)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f7f7f7;
+            }
+
+            QLabel {
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                border: 2px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+
+            QDialogButtonBox {
+                margin: 10px 0;
+            }
+            """
+        )
 
         layout.addLayout(log_layout)
         layout.addLayout(buttons_layout)

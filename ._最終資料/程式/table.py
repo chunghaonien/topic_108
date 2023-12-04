@@ -4,7 +4,7 @@ import sys
 import subprocess
 import os
 import datetime
-import json  # 添加导入json模块
+import json  
 import csv
 from subprocess import Popen, PIPE, STDOUT
 import ast
@@ -149,22 +149,22 @@ class MainWindow(QMainWindow):
 
         response = asyncio.run(main_async(self.user_id))
 
-        # 定义正则表达式来匹配 datetime.date 对象
+        # 定義正則表達式，用於匹配 datetime.date 對象
         date_pattern = re.compile(r"datetime\.date\((\d+), (\d+), (\d+)\)")
 
-        # 替换 datetime.date 字符串为 '"YYYY-MM-DD"' 格式
+        # 替换 datetime.date 字符串為 '"YYYY-MM-DD"' 格式
         def date_replacer(match):
             year, month, day = match.groups()
             return f'"{year}-{month}-{day}"'
 
-        # 将 response 中的 datetime.date 对象替换为字符串
+        # 將 response 中的 datetime.date 對象替换字符
         response_with_dates_as_strings = date_pattern.sub(date_replacer, response)
 
         try:
-            # 使用 ast.literal_eval 将修改后的字符串转换为列表
+            # 使用 ast.literal_eval 將修改的字串轉换列表
             rows_temp = ast.literal_eval(response_with_dates_as_strings)
 
-            # 将日期字符串转换回 datetime.date 对象
+            # 將日期字符串轉换回 datetime.date 對象
             rows = [(user_id, datetime.datetime.strptime(date_string, "%Y-%m-%d").date(), data)
                     for user_id, date_string, data in rows_temp]
 

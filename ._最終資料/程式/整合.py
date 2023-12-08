@@ -389,6 +389,7 @@ class ScrapingDialog(QDialog):
 
     def __init__(self, main_window, browser_window = None):
         super().__init__()
+        self.url = None
         self.browser_window = browser_window
         self.main_window = main_window
         self.scraped_data = []
@@ -438,6 +439,10 @@ class ScrapingDialog(QDialog):
         self.browser_window.drivers.maximize_window()
         self.browser_window.drivers.get(self.browser_window.browser.url().toString())
 
+        # 得到網站 url
+        self.url = self.browser_window.drivers.current_url
+        self.process_url()
+
         def scrape_in_thread():
             # 初始化迴圈索引
             n = 1
@@ -476,10 +481,11 @@ class ScrapingDialog(QDialog):
 
         # 開始重複執行爬取
         try:
-            self.scraped_data.append(f"-----------------------------爬蟲資料-----------------------------")
+            self.scraped_data.append(f"---------------------------爬蟲資料---------------------------")
+            self.scraped_data.append(f"網站網域: {self.url}")
             for i in range(1, repeat_count+1):
                 # 在單獨的線程中執行爬蟲操作
-                self.scraped_data.append(f"-------------------------------第{i}頁-------------------------------")
+                self.scraped_data.append(f"-----------------------------第{i}頁-----------------------------")
                 self.scraping_thread = threading.Thread(target=scrape_in_thread)
                 self.scraping_thread.start()
 
@@ -515,6 +521,19 @@ class ScrapingDialog(QDialog):
             self.browser_window.scraping_button.setEnabled(True)  # 啟用「爬蟲」按鈕
 
             self.browser_window.scraping_in_progress = False  # 重置標誌變數，表示爬蟲操作已完成
+    
+    def process_url(self):
+        match_www = re.search(r'www\.(.+?)/', self.url)
+        match_http = re.search(r'https?://(.+?)/', self.url)
+
+        # 檢查是否有 "www."，如果有，則取後面的文字至 "/" 前
+        if match_www:
+            self.url = match_www.group(1)
+        # 如果沒有 "www."，則取 "https://" 或 "http://" 後面的文字至 "/" 前
+        elif match_http:
+            self.url = match_http.group(1)
+        else:
+            self.url = self.url
 
     def scroll_to_bottom(self):
         # 使用 JavaScript 模擬滾輪滑動到底部

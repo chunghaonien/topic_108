@@ -481,6 +481,7 @@ class ScrapingDialog(QDialog):
         # 開始重複執行爬取
         try:
             self.scraped_data.append(f"---------------------------爬蟲資料---------------------------")
+            self.scraped_data.append(f"網站網域: {self.url}")
             for i in range(1, repeat_count+1):
                 # 在單獨的線程中執行爬蟲操作
                 self.scraped_data.append(f"-----------------------------第{i}頁-----------------------------")

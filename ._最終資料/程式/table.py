@@ -12,7 +12,7 @@ import asyncio
 from Backend_wiring_select import main_async
 import re
 
-headers = ["user_id", "scrap_time", "scrap_data"]
+headers = ["user_id", "scrape_time", "scrape_data"]
 rows = []
 
 class TableModel(QAbstractTableModel): 
@@ -172,7 +172,6 @@ class MainWindow(QMainWindow):
         global rows
 
         response = asyncio.run(main_async(self.user_id))
-
         # 定義正則表達式，用於匹配 datetime.date 對象
         date_pattern = re.compile(r"datetime\.date\((\d+), (\d+), (\d+)\)")
 
@@ -245,8 +244,8 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # user_data = sys.stdin.read().strip()
-    user_data = "test,1"
+    user_data = sys.stdin.read().strip()
+    # user_data = "David,1"
     username = user_data.split(",")[0]
     user_id = user_data.split(",")[1]
 

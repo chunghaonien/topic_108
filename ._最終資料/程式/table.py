@@ -182,7 +182,6 @@ class MainWindow(QMainWindow):
 
         # 將 response 中的 datetime.date 對象替换字符
         response_with_dates_as_strings = date_pattern.sub(date_replacer, response)
-        print(response_with_dates_as_strings)
     
         if response_with_dates_as_strings == "False":
             QMessageBox.warning(self, "警告", "沒有資料可顯示。")

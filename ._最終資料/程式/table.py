@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLabel, QHeaderView, QInputDialog, QMessageBox, QLineEdit
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLabel, QHeaderView, QInputDialog, QMessageBox, QLineEdit, QGraphicsView, QGraphicsScene, QGraphicsEllipseItem, QTableWidget, QTableWidgetItem
 from PyQt6.QtCore import Qt, QAbstractTableModel, QVariant
 import sys
 import subprocess
@@ -12,8 +12,49 @@ import asyncio
 from Backend_wiring_select import main_async
 import re
 
+
+
 headers = ["user_id", "scrape_time", "scrape_data"]
 rows = []
+
+class Analyze(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("分析資料")
+        self.setGeometry(100, 100, 800, 600)
+        self.show()
+
+        # 創建主視窗的水平佈局
+        main_layout = QHBoxLayout()
+
+        # 創建左側的表格部分
+        table_widget = QTableWidget()
+        table_widget.setColumnCount(3)
+        table_widget.setRowCount(5)
+
+        for row in range(5):
+            for col in range(3):
+                item = QTableWidgetItem(f"第 {row} 列, 第 {col} 行")
+                table_widget.setItem(row, col, item)
+
+        # 創建右側的圖表部分
+        chart_view = QGraphicsView()
+        chart_scene = QGraphicsScene()
+
+        # 在圖表部分添加一個簡單的圓形
+        chart_scene.addEllipse(0, 0, 100, 100)
+
+        chart_view.setScene(chart_scene)
+
+        # 將表格和圖表添加到主佈局中
+        main_layout.addWidget(table_widget)
+        main_layout.addWidget(chart_view)
+
+        # 創建中央窗口並設置主佈局
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
 class TableModel(QAbstractTableModel): 
     def rowCount(self, parent):
@@ -59,6 +100,13 @@ class MainWindow(QMainWindow):
         self.user_id = user_id
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
 
+        self.setStyleSheet('''
+            QPushButton {
+                background-color: #008CBA;
+                color: white;
+            }
+        ''')
+
         self.model = TableModel()
         table_view = QTableView()
         # 設置水平標題為等寬模式
@@ -78,16 +126,14 @@ class MainWindow(QMainWindow):
         self.select_button.setStyleSheet("background-color: #008CBA;")
         self.select_button.clicked.connect(self.select_button_clicked)
 
-# ////////////////////////////////
         self.filter_button = QPushButton("篩選")
         self.filter_label = QLabel('輸入篩選值', self)
         self.filter_textbox = QLineEdit(self)
         self.filter_button.setFixedSize(80, 30)
-        self.filter_button.setStyleSheet("background-color: #008CBA;")
         self.filter_button.clicked.connect(self.filter_button_clicked)
         self.filter_button.setEnabled(False)  # 初始狀態設為不可用
         self.filter_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")  # 灰色樣式
-# ////////////////////////////////
+
         # 新增下載按鈕
         self.download_button = QPushButton("下載")
         self.download_button.setFixedSize(80, 30)
@@ -104,10 +150,18 @@ class MainWindow(QMainWindow):
         # self.time_button.setFixedSize(80, 30)
         # self.time_button.clicked.connect(self.filter_by_time)
 
+        # 新增分析按鈕
+        self.analyze_button = QPushButton("分析")
+        self.analyze_button.setFixedSize(80, 30)
+        self.analyze_button.setEnabled(False)  # 初始狀態設為不可用
+        self.analyze_button.setStyleSheet("background-color: #CCCCCC; color: #555555;")
+        self.analyze_button.clicked.connect(self.analyze_button_clicked)
+
         # 將按鈕添加到水平佈局
         h_layout = QHBoxLayout()
         h_layout.addWidget(account_label)
         h_layout.addWidget(user_id_label)
+        h_layout.addWidget(self.analyze_button)
         h_layout.addStretch(1)  #將按鈕推到右邊
         # h_layout.addWidget(self.time_button)
         h_layout.addWidget(self.filter_label)
@@ -123,9 +177,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(v_layout)
         self.setCentralWidget(central_widget)
 
-
-
-
+    # 下載功能
     def download_button_clicked(self):
         global rows
 
@@ -167,7 +219,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"下載資料時發生錯誤: {e}")
 
-
+    # 查詢功能
     def select_button_clicked(self):
         global rows
 
@@ -208,7 +260,10 @@ class MainWindow(QMainWindow):
         # 在查詢按鈕觸發後，將篩選按鈕設置為可用
         self.filter_button.setEnabled(True)     #資料傳送
         self.filter_button.setStyleSheet("")    # 移除樣式，恢復預設外觀
+        self.analyze_button.setEnabled(True)     #資料傳送
+        self.analyze_button.setStyleSheet("")    # 移除樣式，恢復預設外觀
 
+    # 篩選功能
     def filter_button_clicked(self):
         global rows
 
@@ -228,26 +283,23 @@ class MainWindow(QMainWindow):
         self.download_button.setEnabled(True)
         self.download_button.setStyleSheet("")
 
-    # # 依照時間進行篩選
-    # def filter_by_time(self, time):
-    #     global rows
 
-    #     # 使用 filter() 函數篩選資料
-    #     rows = list(filter(lambda row: time in row[1], rows))
+    #分析爬取的資料介面
+    def analyze_button_clicked(self):
+        script_path = os.path.join(self.script_dir, "analyze.py")
+        input_data = f"{self.username},{self.user_id}".encode('utf-8')
+        process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(input=input_data)
 
-    #     self.model.layoutAboutToBeChanged.emit()
-    #     self.model.layoutChanged.emit()
-
-    #     self.download_button.setEnabled(True)
-    #     self.download_button.setStyleSheet("")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    user_data = sys.stdin.read().strip()
-    # user_data = "David,1"
+    # user_data = sys.stdin.read().strip()
+    user_data = "David,1"
     username = user_data.split(",")[0]
     user_id = user_data.split(",")[1]
 
     window = MainWindow(username, user_id)
     window.show()
+
     app.exec()

@@ -12,8 +12,6 @@ import asyncio
 from Backend_wiring_select import main_async
 import re
 
-
-
 headers = ["user_id", "scrape_time", "scrape_data"]
 rows = []
 
@@ -83,7 +81,6 @@ class TableModel(QAbstractTableModel):
                 return value
 
         return QVariant()
-
 
     def headerData(self, section, orientation, role):
         if role != Qt.ItemDataRole.DisplayRole or orientation != Qt.Orientation.Horizontal:
@@ -287,15 +284,15 @@ class MainWindow(QMainWindow):
     #分析爬取的資料介面
     def analyze_button_clicked(self):
         script_path = os.path.join(self.script_dir, "analyze.py")
-        input_data = f"{self.username},{self.user_id}".encode('utf-8')
+        input_data = f"{self.user_id}".encode('utf-8')
         process = subprocess.Popen(["python", script_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate(input=input_data)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # user_data = sys.stdin.read().strip()
-    user_data = "David,1"
+    user_data = sys.stdin.read().strip()
+    # user_data = "David,1"
     username = user_data.split(",")[0]
     user_id = user_data.split(",")[1]
 
